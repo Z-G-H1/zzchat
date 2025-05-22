@@ -1,0 +1,10 @@
+<RCC>
+    <qresource prefix="/pic">
+        <file>resource/login.png</file>
+        <file>resource/login1.png</file>
+        <file>resource/页面加载中.png</file>
+    </qresource>
+    <qresource prefix="/">
+        <file>style/stylesheet.qss</file>
+    </qresource>
+</RCC>
