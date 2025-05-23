@@ -63,6 +63,7 @@ void RegisterDialog::slot_reg_mod_finish(ReqId id, QString res, ErrorCodes err){
     QJsonObject jsonObj = jsonDoc.object();
 
     // 调用对应的逻辑
+    _handlers[id](jsonDoc.object());
 
     return ;
 }
@@ -77,4 +78,18 @@ void RegisterDialog::showTip(QString str, bool b_ok){
     }
     ui->err_tip->setText(str);
     repolish(ui->err_tip);
+}
+
+void RegisterDialog::initHttpHandlers(){
+    // 注册获取验证码回包逻辑
+    _handlers.insert(ReqId::ID_GET_VARIFY_CODE,[this](QJsonObject jsonObj){
+       int error = jsonObj["error"].toInt();
+       if( error != ErrorCodes::SUCCESS ){
+           showTip(tr("参数错误"),false);
+           return ;
+       }
+       auto email = jsonObj["email"].toString();
+       showTip(tr("验证码已经发送到邮箱，注意查收"), true);
+       qDebug() << "email is " << email ;
+    });
 }
