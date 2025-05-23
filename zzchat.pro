@@ -1,4 +1,4 @@
-QT       += core gui
+QT       += core gui network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -19,6 +19,7 @@ DESTDIR = ./bin
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    HttpMgr.cpp \
     global.cpp \
     logindialog.cpp \
     main.cpp \
@@ -26,6 +27,7 @@ SOURCES += \
     registerdialog.cpp
 
 HEADERS += \
+    HttpMgr.h \
     global.h \
     logindialog.h \
     mainwindow.h \
