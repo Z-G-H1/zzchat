@@ -14,6 +14,10 @@ class RegisterDialog : public QDialog
 public:
     explicit RegisterDialog(QWidget *parent = nullptr);
     ~RegisterDialog();
+    void showTip(QString str);
+
+private slots:
+    void on_get_code_clicked();
 
 private:
     Ui::RegisterDialog *ui;
