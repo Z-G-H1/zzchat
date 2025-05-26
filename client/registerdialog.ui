@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>328</width>
-    <height>306</height>
+    <width>361</width>
+    <height>416</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -31,6 +31,28 @@
         </size>
        </property>
       </spacer>
+     </item>
+     <item>
+      <widget class="QWidget" name="err_widget" native="true">
+       <property name="minimumSize">
+        <size>
+         <width>20</width>
+         <height>20</height>
+        </size>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_7">
+        <item>
+         <widget class="QLabel" name="err_tip">
+          <property name="text">
+           <string>错误提示</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
      </item>
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout">
@@ -70,21 +92,25 @@
         </widget>
        </item>
        <item>
-        <widget class="QLineEdit" name="pass_edit"/>
+        <widget class="QLineEdit" name="pass_edit">
+         <property name="readOnly">
+          <bool>false</bool>
+         </property>
+        </widget>
        </item>
       </layout>
      </item>
      <item>
       <layout class="QHBoxLayout" name="horizontalLayout_4">
        <item>
-        <widget class="QLabel" name="label_4">
+        <widget class="QLabel" name="confirm_label">
          <property name="text">
           <string>确认：</string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QLineEdit" name="lineEdit_2"/>
+        <widget class="QLineEdit" name="confirm_edit"/>
        </item>
       </layout>
      </item>
