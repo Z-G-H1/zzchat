@@ -19,13 +19,13 @@ public:
         // 确保多线程下只有一个实例被创建，主要是实现线程安全。
         static std::once_flag s_flag;
         std::call_once(s_flag,[&](){
-            _instance = shared_ptr<T>(new T );
+            _instance = std::shared_ptr<T>(new T );
         });
         return _instance;
     }
 
     void PrintAddress() {
-        std::cout << _instance.get() << endl;
+        std::cout << _instance.get() << std::endl;
     }
 
     ~Singleton() {
