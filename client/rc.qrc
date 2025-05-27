@@ -3,6 +3,7 @@
         <file>resource/login.png</file>
         <file>resource/login1.png</file>
         <file>resource/页面加载中.png</file>
+        <file>resource/chat.ico</file>
     </qresource>
     <qresource prefix="/">
         <file>style/stylesheet.qss</file>
