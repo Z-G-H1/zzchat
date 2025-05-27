@@ -3,8 +3,20 @@
 #include <QWidget>
 #include <functional>
 #include "QStyle"
+#include <QJsonObject>
+#include <QNetworkReply>
+#include <iostream>
+#include <memory>
+#include <QRegularExpression>
+#include <QJsonDocument>
+#include <QString>
+#include <QDir>
+#include <QSettings>
+
 
 extern std::function<void(QWidget*)> repolish;
+extern QString gate_url_prefix;
+
 
 enum ReqId {
     ID_GET_VARIFY_CODE = 1001,  // 获取验证玛

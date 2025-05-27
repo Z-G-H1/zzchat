@@ -9,9 +9,12 @@ class LogicSystem : public Singleton<LogicSystem>
 public:
 	~LogicSystem(){}
 	bool HandleGet(std::string, std::shared_ptr<HttpConnection>);
+	bool HandlePost(std::string, std::shared_ptr<HttpConnection>);
+
 
 	// 接受路由和回调函数作为参数
-	void RegGet(std::string, HttpHandler handler);
+	void RegGet(std::string url , HttpHandler handler);
+	void RegPost(std::string url, HttpHandler handler);
 private:
 	LogicSystem();
 	// post请求和get请求的 回调函数map, key为路由， val为回调函数

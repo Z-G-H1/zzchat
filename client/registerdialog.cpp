@@ -12,7 +12,7 @@ RegisterDialog::RegisterDialog(QWidget *parent) :
 
     // 连接注册完成信号和槽函数
     connect(HttpMgr::GetInstance().get(), &HttpMgr::sig_reg_mod_finish, this, &RegisterDialog::slot_reg_mod_finish);
-
+    initHttpHandlers();
 }
 
 RegisterDialog::~RegisterDialog()
@@ -31,9 +31,9 @@ void RegisterDialog::on_get_code_clicked()
     if( match ){
         // 发送http验证码
         qDebug() << "邮箱验证通过，发送验证码";
-        ui->err_tip->setText("");
-        ui->err_tip->setProperty("state", "normal");
-        repolish(ui->err_tip);
+        QJsonObject json_obj;
+        json_obj["email"] = email;
+        HttpMgr::GetInstance()->PostHttpReq(QUrl(gate_url_prefix+"/get_varifycode"),json_obj,ReqId::ID_GET_VARIFY_CODE, Modules::REGISTERMOD);
     }else {
         // 提示邮箱不正确
         showTip(tr("邮箱地址不正确"),false);

@@ -11,6 +11,7 @@ private:
 	void CheckDeadline();
 	void WriteResponse();
 	void HandleReq();
+	void PreParseGetParam();
 
 	tcp::socket _socket;
 	// 处理读数据的buffer
@@ -25,4 +26,8 @@ private:
 	// 给连接设置一个超时
 	net::steady_timer deadline_{
 		_socket.get_executor(), std::chrono::seconds(60) };
+
+	std::string _get_url;
+	std::unordered_map<std::string, std::string> _get_params;
+
 };
