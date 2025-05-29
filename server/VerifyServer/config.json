@@ -1,0 +1,17 @@
+{
+    "email": {
+      "user": "zhou_guanghan@163.com",
+      "pass": "RUsmBhH6vUNWwy4F"
+    },
+
+    "mysql": {
+        "host": "localhost",
+        "port": "3306",
+        "passwd":"root"
+    },
+    "redis": {
+        "host": "localhost",
+        "port": "6380",
+        "passwd":1234
+    }
+}
