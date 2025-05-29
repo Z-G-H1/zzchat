@@ -71,7 +71,7 @@ LogicSystem::LogicSystem()
 		}
 		auto email = src_root["email"].asString();
 
-		GetVerifyRsp resp = VerifyGrpcClient::GetInstance()->GetVarifyCode(email);
+		GetVerifyRsp resp = VerifyGrpcClient::GetInstance()->GetVerifyCode(email);
 
 		std::cout << "email is " << email << std::endl;
 		root["error"] = resp.error();
