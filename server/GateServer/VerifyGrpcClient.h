@@ -43,9 +43,6 @@ private:
 		// 创建一个到 gRPC 服务器的通信通道
 		std::shared_ptr<Channel> channel = grpc::CreateChannel("127.0.0.1:50051", grpc::InsecureChannelCredentials());
 
-		// ============= 在这里加入诊断代码 =============
-		std::cout << "[C++-DEBUG] Attempting to connect to target: " << std::endl;
-
 		// 尝试在5秒内等待连接成功
 		bool connected = channel->WaitForConnected(gpr_time_add(gpr_now(GPR_CLOCK_REALTIME), gpr_time_from_seconds(5, GPR_TIMESPAN)));
 
@@ -61,7 +58,7 @@ private:
 
 
 		//使用上面创建的通道，创建一个存根 (Stub) 
-		//存根是客户端与服务器端通信的接口 v这个存根对象是远程服务的本地代理
+		//存根是客户端与服务器端通信的接口  这个存根对象是远程服务的本地代理
 		// 你对 stub_ 的所有方法调用，都会被 gRPC 框架转化为网络请求发送到服务器。
 		stub_ = VerifyService::NewStub(channel);
 	}
