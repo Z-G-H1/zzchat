@@ -13,6 +13,7 @@ struct SectionInfo{
 			return *this;
 		}
 		this->_section_datas = other._section_datas;
+		return *this;
 	}
 
 	std::map<std::string, std::string> _section_datas;
@@ -27,9 +28,14 @@ struct SectionInfo{
 class ConfigMgr
 {
 public:
-	ConfigMgr();
+
 	~ConfigMgr() {
 		_config_map.clear();
+	}
+
+	static ConfigMgr& Inst() {
+		static ConfigMgr cfg_mgr;
+		return cfg_mgr;
 	}
 
 	SectionInfo operator[](const std::string& section) {
@@ -51,7 +57,7 @@ public:
 	}
 
 private:
-	
+	ConfigMgr();
 	std::map<std::string, SectionInfo> _config_map;
 };
 
