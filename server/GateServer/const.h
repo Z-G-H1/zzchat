@@ -17,6 +17,7 @@
 #include <condition_variable>
 #include <atomic>
 
+#include "hiredis.h"
 #include "Singleton.h"
 
 namespace beast = boost::beast;         // from <boost/beast.hpp>
