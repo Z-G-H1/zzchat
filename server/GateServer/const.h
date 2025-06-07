@@ -16,6 +16,7 @@
 #include <queue>
 #include <condition_variable>
 #include <atomic>
+#include <cassert>
 
 #include "hiredis.h"
 #include "Singleton.h"
