@@ -3,8 +3,8 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    <IncludePath>D:\cppsoft\libjson\include;D:\Study\QT\boost_1_85_0;D:\cppsoft\redis\deps\hiredis;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\cppsoft\libjson\lib;D:\Study\QT\boost_85\lib64-msvc-14.3;D:\cppsoft\redis\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>D:\cppsoft\libjson\include;D:\Study\QT\boost_1_85_0;D:\cppsoft\redis\deps\hiredis;D:\cppsoft\mysql-connector\include;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\cppsoft\libjson\lib;D:\Study\QT\boost_85\lib64-msvc-14.3;D:\cppsoft\redis\lib;D:\cppsoft\mysql-connector\lib64\vs14;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <Link>
@@ -14,6 +14,10 @@
     <ClCompile>
       <AdditionalIncludeDirectories>D:\cppsoft\grpc\third_party\re2;D:\cppsoft\grpc\third_party\address_sorting\include;D:\cppsoft\grpc\third_party\abseil-cpp;D:\cppsoft\grpc\third_party\protobuf\src;D:\cppsoft\grpc\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
+    <PostBuildEvent>
+      <Command>xcopy $(ProjectDir)config.ini  $(SolutionDir)$(Platform)\$(Configuration)\   /y
+xcopy $(ProjectDir)*.dll   $(SolutionDir)$(Platform)\$(Configuration)\   /y</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup />
 </Project>
