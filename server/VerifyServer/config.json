@@ -11,7 +11,7 @@
     },
     "redis": {
         "host": "localhost",
-        "port": "6380",
-        "passwd":1234
+        "port": "6379",
+        "passwd": "123456"
     }
 }

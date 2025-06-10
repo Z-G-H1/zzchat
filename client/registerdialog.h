@@ -23,6 +23,8 @@ public:
 
 private slots:
     void on_get_code_clicked();
+    void on_sure_btn_clicked();
+
 public slots:
     void slot_reg_mod_finish(ReqId id, QString res, ErrorCodes err);
 
