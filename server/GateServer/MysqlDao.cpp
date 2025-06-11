@@ -23,11 +23,11 @@ int MysqlDao::RegUser(const std::string& name, const std::string& email, const s
 	auto con = pool_->getConnection();
 	try {
 		if (con == nullptr) {
-			pool_->returnConnection(std::move(con));
+			//pool_->returnConnection(std::move(con));
 			return false;
 		}
 		// 准备调用存储过程
-		std::unique_ptr<sql::PreparedStatement> stmt(con->prepareStatement("CALL reg_user(?,?,?,@result)"));
+		std::unique_ptr<sql::PreparedStatement> stmt(con->_con->prepareStatement("CALL reg_user(?,?,?,@result)"));
 		// 设置输入参数
 		stmt->setString(1, name);
 		stmt->setString(2, email);
@@ -38,7 +38,7 @@ int MysqlDao::RegUser(const std::string& name, const std::string& email, const s
 		stmt->execute();
 		// 如果存储过程设置了会话变量，或有其他方式获取输出参数的值， 你可以在这里执行select查询获取
 		// l例如如果存储过程设置了一个会话变量 @result 来存储结果， 可以这样获取
-		std::unique_ptr<sql::Statement> stmtResult(con->createStatement());
+		std::unique_ptr<sql::Statement> stmtResult(con->_con->createStatement());
 		std::unique_ptr<sql::ResultSet> res(stmtResult->executeQuery("SELECT @result AS result"));
 
 		if (res->next()) {
@@ -49,7 +49,6 @@ int MysqlDao::RegUser(const std::string& name, const std::string& email, const s
 		}
 		pool_->returnConnection(std::move(con));
 		return -1;
-
 	}
 	catch (sql::SQLException& e) {
 		pool_->returnConnection(std::move(con));

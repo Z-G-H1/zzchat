@@ -1,6 +1,6 @@
 #include "logindialog.h"
 #include "ui_logindialog.h"
-
+#include <QDebug>
 LoginDialog::LoginDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::LoginDialog)
@@ -12,5 +12,6 @@ LoginDialog::LoginDialog(QWidget *parent) :
 
 LoginDialog::~LoginDialog()
 {
+    qDebug() << "destruct LoginDlg";
     delete ui;
 }

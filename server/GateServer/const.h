@@ -26,6 +26,8 @@ namespace http = beast::http;           // from <boost/beast/http.hpp>
 namespace net = boost::asio;            // from <boost/asio.hpp>
 using tcp = boost::asio::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
 
+#define CODEPREFIX  "code_"
+
 enum ErrorCodes {
     Success = 0,
 	Error_Json = 1001,  //Json解析错误
@@ -39,4 +41,19 @@ enum ErrorCodes {
 	PasswdInvalid = 1009,   //密码更新失败
 	TokenInvalid = 1010,   //Token失效
 	UidInvalid = 1011,  //uid无效
+};
+
+// Defer类
+class Defer {
+public:
+	// 接受一个lambda表达式或者函数指针
+	Defer(std::function<void()> func) : func_(func) {}
+
+	// 析构函数中执行传入的函数
+	~Defer() {
+		func_();
+	}
+
+private:
+	std::function<void()> func_;
 };
