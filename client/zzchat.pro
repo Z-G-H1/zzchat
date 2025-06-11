@@ -20,19 +20,23 @@ DESTDIR = ./bin
 
 SOURCES += \
     HttpMgr.cpp \
+    clickedlabel.cpp \
     global.cpp \
     logindialog.cpp \
     main.cpp \
     mainwindow.cpp \
-    registerdialog.cpp
+    registerdialog.cpp \
+    timerbtn.cpp
 
 HEADERS += \
     HttpMgr.h \
+    clickedlabel.h \
     global.h \
     logindialog.h \
     mainwindow.h \
     registerdialog.h \
-    singleton.h
+    singleton.h \
+    timerbtn.h
 
 FORMS += \
     logindialog.ui \

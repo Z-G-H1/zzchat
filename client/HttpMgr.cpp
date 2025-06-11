@@ -19,7 +19,7 @@ void HttpMgr::PostHttpReq(QUrl url, QJsonObject json, ReqId req_id, Modules mod)
     auto self = shared_from_this();     // 安全的使用this（HttpMgr实例）指针
     QNetworkReply *reply = _manager.post(request, data);
     // 设置信号和槽等待发送完成
-    QObject::connect(reply,&QNetworkReply::finished,[reply,self, req_id, mod](){
+    QObject::connect(reply,&QNetworkReply::finished,[reply, self, req_id, mod](){
         // 处理错误的情况
         if( reply->error() != QNetworkReply::NoError ){
             qDebug() << reply->errorString();

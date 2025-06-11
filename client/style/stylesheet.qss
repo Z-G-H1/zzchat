@@ -8,3 +8,36 @@ background-color:rgb(255,255,255)
 #err_tip[state='err']{
    color: red;
 }
+
+#pass_visible[state='unvisible']{
+   border-image: url(:/pic/resource/unvisible.png);
+}
+
+#pass_visible[state='unvisible_hover']{
+   border-image: url(:/pic/resource/unvisible_hover.png);
+}
+
+#pass_visible[state='visible']{
+   border-image: url(:/pic/resource/visible.png);
+}
+
+#pass_visible[state='visible_hover']{
+   border-image: url(:/pic/resource/visible_hover.png);
+}
+
+
+#confirm_visible[state='unvisible']{
+   border-image: url(:/pic/resource/unvisible.png);
+}
+
+#confirm_visible[state='unvisible_hover']{
+   border-image: url(:/pic/resource/unvisible_hover.png);
+}
+
+#confirm_visible[state='visible']{
+   border-image: url(:/pic/resource/visible.png);
+}
+
+#confirm_visible[state='visible_hover']{
+   border-image: url(:/pic/resource/visible_hover.png);
+}

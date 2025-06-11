@@ -4,6 +4,10 @@
         <file>resource/login1.png</file>
         <file>resource/页面加载中.png</file>
         <file>resource/chat.ico</file>
+        <file>resource/unvisible.png</file>
+        <file>resource/unvisible_hover.png</file>
+        <file>resource/visible.png</file>
+        <file>resource/visible_hover.png</file>
     </qresource>
     <qresource prefix="/">
         <file>style/stylesheet.qss</file>
