@@ -31,6 +31,10 @@ RegisterDialog::RegisterDialog(QWidget *parent) :
        checkVerifyValid();
     });
 
+    connect(ui->confirm_edit,&QLineEdit::editingFinished, this, [this](){
+       checkConfirmValid();
+    });
+
     //设置浮动显示手形状
     ui->pass_visible->setCursor(Qt::PointingHandCursor);
     ui->confirm_visible->setCursor(Qt::PointingHandCursor);
@@ -92,7 +96,7 @@ void RegisterDialog::on_get_code_clicked()
         qDebug() << "邮箱验证通过，发送验证码";
         QJsonObject json_obj;
         json_obj["email"] = email;
-        HttpMgr::GetInstance()->PostHttpReq(QUrl(gate_url_prefix+"/get_varifycode"),
+        HttpMgr::GetInstance()->PostHttpReq(QUrl(gate_url_prefix+"/get_verifycode"),
                                             json_obj,ReqId::ID_GET_VARIFY_CODE, Modules::REGISTERMOD);
     }else {
         // 提示邮箱不正确

@@ -46,7 +46,7 @@ LogicSystem::LogicSystem()
 		}
 	});
 
-	RegPost("/get_varifycode", [](std::shared_ptr<HttpConnection> connection) {
+	RegPost("/get_verifycode", [](std::shared_ptr<HttpConnection> connection) {
 		// 获取请求体
 		auto body_str = boost::beast::buffers_to_string(connection->_request.body().data());
 		connection->_response.set(http::field::content_type, "text/json");
@@ -193,7 +193,7 @@ LogicSystem::LogicSystem()
 		}
 
 		// 检查验证码是否匹配
-		if (verify_code != src_root["varifycode"].asString()) {
+		if (verify_code != src_root["verifycode"].asString()) {
 			std::cout << "verify code error (not match)" << std::endl;
 			root["error"] = ErrorCodes::VerifyCodeErr;
 			std::string jsonstr = root.toStyledString();
@@ -201,9 +201,35 @@ LogicSystem::LogicSystem()
 			return true;
 		}
 
-		
+		// 查询数据库判断用户名和邮箱是否匹配
+		bool email_valid = MysqlMgr::GetInstance()->CheckEmail(name, email);
+		if (!email_valid) {
+			std::cout << "user email not match" << std::endl;
+			root["error"] = ErrorCodes::EmailNotMatch;
+			std::string jsjonstr = root.toStyledString();
+			beast::ostream(connection->_response.body()) << jsjonstr;
+			return true;
+		}
 
+		// 更新密码为最新密码
+		bool b_up = MysqlMgr::GetInstance()->UpdatePwd(name, pwd);
+		if (!b_up) {
+			std::cout << "update pwd failed" << std::endl;
+			root["error"] = ErrorCodes::PasswdUpFailed;
+			std::string jsonstr = root.toStyledString();
+			beast::ostream(connection->_response.body()) << jsonstr;
+			return true;
+		}
 
+		std::cout << "succeed to update password" << pwd << std::endl;
+		root["error"] = 0;
+		root["email"] = email;
+		root["user"] = name;
+		root["passwd"] = pwd;
+		root["verifycode"] = src_root["verifycode"].asString();
+		std::string jsonstr = root.toStyledString();
+		beast::ostream(connection->_response.body()) << jsonstr;
+		return true;
 
 	});
 }
