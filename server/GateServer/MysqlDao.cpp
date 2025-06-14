@@ -59,3 +59,68 @@ int MysqlDao::RegUser(const std::string& name, const std::string& email, const s
 	}
 	return 0;
 }
+
+bool MysqlDao::CheckEmail(const std::string& name, const std::string& email) {
+	auto con = pool_->getConnection();
+	try {
+		if (con == nullptr) {
+			pool_->returnConnection(std::move(con));
+			return false;
+		}
+
+		// 准备查询语句
+		std::unique_ptr<sql::PreparedStatement> pstmt(con->_con->prepareStatement("SELECT email from user where name = ?"));
+		// 设置参数
+		pstmt->setString(1, name);
+
+		// 执行查询
+		std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
+
+		//遍历结果集
+		while (res->next()) {
+			std::cout << "Check Email: " << res->getString("email") << std::endl;
+			if (res->getString("email") != email) {
+				pool_->returnConnection(std::move(con));
+				return false;
+			}
+			pool_->returnConnection(std::move(con));
+			return true;
+		}
+		
+	}
+	catch (sql::SQLException& e) {
+		pool_->returnConnection(std::move(con));
+		std::cerr << "SQLException: " << e.what();
+		std::cerr << " (MySQL error code: " << e.getErrorCode();
+		std::cerr << ", SQLState: " << e.getSQLState() << " )" << std::endl;
+		return false;
+	}
+}
+bool MysqlDao::UpdatePwd(const std::string& name, const std::string& newpwd) {
+	auto con = pool_->getConnection();
+	try {
+		if (con == nullptr) {
+			pool_->returnConnection(std::move(con));
+			return false;
+		}
+
+		// 准备查询语句
+		std::unique_ptr<sql::PreparedStatement> pstmt(con->_con->prepareStatement("UPDATE user set pwd = ? where name = ?"));
+		// 设置参数
+		pstmt->setString(1, newpwd);
+		pstmt->setString(2, name);
+		// 执行查询
+		int updateCount = pstmt->executeUpdate();
+
+		std::cout << "Updated rows: " << updateCount << std::endl;
+		pool_->returnConnection(std::move(con));
+		return true;
+	}
+	catch (sql::SQLException& e) {
+		pool_->returnConnection(std::move(con));
+		std::cerr << "SQLException: " << e.what();
+		std::cerr << " (MySQL error code: " << e.getErrorCode();
+		std::cerr << ", SQLState: " << e.getSQLState() << " )" << std::endl;
+		return false;
+	}
+}

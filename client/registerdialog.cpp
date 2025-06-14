@@ -2,7 +2,7 @@
 
 RegisterDialog::RegisterDialog(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::RegisterDialog)
+    ui(new Ui::RegisterDialog),_countdown(5)
 {
     ui->setupUi(this);
     ui->pass_edit->setEchoMode(QLineEdit::Password);
@@ -127,8 +127,6 @@ void RegisterDialog::slot_reg_mod_finish(ReqId id, QString res, ErrorCodes err){
 
     return ;
 }
-
-
 
 void RegisterDialog::showTip(QString str, bool b_ok){
     if( b_ok ){
