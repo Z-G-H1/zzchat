@@ -26,14 +26,12 @@ private slots:
     void on_sure_btn_clicked();
     void on_return_btn_clicked();
     void on_concel_btn_clicked();
-
 public slots:
     void slot_reg_mod_finish(ReqId id, QString res, ErrorCodes err);
 
 private:
     void showTip(QString str, bool b_ok);
     void initHttpHandlers();
-
     void AddTipErr(TipErr te, QString tips);
     void DelTipErr(TipErr te);
     bool checkUserValid();
