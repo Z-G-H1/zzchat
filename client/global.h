@@ -13,7 +13,6 @@
 #include <QDir>
 #include <QSettings>
 
-
 extern std::function<void(QWidget*)> repolish;
 
 extern std::function<QString(QString)> xorString;
@@ -57,5 +56,11 @@ enum Modules {
     LOGINMOD = 2
 };
 
+struct ServerInfo{
+    QString Host;
+    QString Port;
+    QString Token;
+    int Uid;
+};
 
-#endif // GLOBAL_H
+#endif
