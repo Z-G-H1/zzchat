@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>1126</width>
-    <height>1311</height>
+    <height>1333</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -40,6 +40,23 @@
      <property name="bottomMargin">
       <number>5</number>
      </property>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_7">
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QLabel" name="err_tip">
+         <property name="text">
+          <string/>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
      <item>
       <widget class="QWidget" name="widget" native="true">
        <layout class="QGridLayout" name="gridLayout">
@@ -167,7 +184,7 @@
         </spacer>
        </item>
        <item>
-        <widget class="QPushButton" name="Login_btn">
+        <widget class="QPushButton" name="login_btn">
          <property name="minimumSize">
           <size>
            <width>100</width>

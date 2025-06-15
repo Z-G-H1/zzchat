@@ -59,7 +59,7 @@ void ResetDialog::on_varify_btn_clicked()
     //发送http请求获取验证码
     QJsonObject json_obj;
     json_obj["email"] = email;
-    HttpMgr::GetInstance()->PostHttpReq(QUrl(gate_url_prefix+"/get_varifycode"),
+    HttpMgr::GetInstance()->PostHttpReq(QUrl(gate_url_prefix+"/get_verifycode"),
                                         json_obj, ReqId::ID_GET_VARIFY_CODE,Modules::RESETMOD);
 }
 
@@ -245,7 +245,7 @@ void ResetDialog::on_sure_btn_clicked()
     json_obj["user"] = ui->user_edit->text();
     json_obj["email"] = ui->email_edit->text();
     json_obj["passwd"] = xorString(ui->pwd_edit->text());
-    json_obj["varifycode"] = ui->varify_edit->text();
+    json_obj["verifycode"] = ui->varify_edit->text();
     HttpMgr::GetInstance()->PostHttpReq(QUrl(gate_url_prefix+"/reset_pwd"),
                                         json_obj, ReqId::ID_RESET_PWD,Modules::RESETMOD);
 }

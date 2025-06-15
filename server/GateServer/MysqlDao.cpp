@@ -124,3 +124,48 @@ bool MysqlDao::UpdatePwd(const std::string& name, const std::string& newpwd) {
 		return false;
 	}
 }
+
+bool MysqlDao::CheckPwd(const std::string& email, const std::string& pwd, UserInfo& userInfo) {
+	auto con = pool_->getConnection();
+	if (con == nullptr) {
+		return false;
+	}
+
+	// 析构函数中执行传入的函数
+	Defer defer([this, &con]() {
+		pool_->returnConnection(std::move(con));
+	});
+
+	try {
+		
+		// 准备sql语句
+		std::unique_ptr<sql::PreparedStatement> pstmt(con->_con->prepareStatement("SELECT * FROM user WHERE email = ?"));
+		pstmt->setString(1, email); // 将username替换为你要查询的用户名
+
+		// 执行查询
+		std::unique_ptr<sql::ResultSet> res(pstmt->executeQuery());
+		std::string origin_pwd = "";
+		// 遍历结果集
+		while(res->next()) {
+			// 获取查询结果
+			origin_pwd = res->getString("pwd");
+			std::cout << "Password: " << origin_pwd << std::endl;
+			break;
+		}
+		if (pwd != origin_pwd) {
+			return false;
+		}
+		userInfo.name = res->getString("name");
+		userInfo.email = email;
+		userInfo.uid = res->getInt("uid");
+		userInfo.pwd = origin_pwd;
+		return true;
+	}
+	catch (sql::SQLException& e) {
+		std::cerr << "SQLException: " << e.what();
+		std::cerr << " (MySQL error code: " << e.getErrorCode();
+		std::cerr << ", SQLState: " << e.getSQLState() << " )" << std::endl;
+		return false;
+	}
+
+}
