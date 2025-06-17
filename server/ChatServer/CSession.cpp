@@ -30,16 +30,50 @@ void CSession::Start()
 }
 
 void CSession::Close() {
-
+	_socket.close();
+	_b_close = true;
+}
+std::shared_ptr<CSession> CSession::SharedSelf()
+{
+	return std::shared_ptr<CSession>();
 }
 void CSession::Send(char* msg, short max_length, short msgid)
 {
+	std::lock_guard<std::mutex>lock(_send_lock);
+	int send_que_size = _send_que.size();
+
+	if (send_que_size > MAX_SENDQUE) {
+		std::cout << "session: " << _uuid << " send que faulled, size is " << MAX_SENDQUE << std::endl;
+		return;
+	}
+
+	_send_que.push(make_shared<SendNode>(msg, max_length, msgid));
+	if (send_que_size > 0) {
+		return;
+	}
+	auto& msgnode = _send_que.front();
+	boost::asio::async_write(_socket, boost::asio::buffer(msgnode->_data, msgnode->_total_len),
+		std::bind(&CSession::HandleWrite, this, std::placeholders::_1, SharedSelf()));
 }
 
 void CSession::Send(std::string msg, short msgid)
 {
-}
+	std::lock_guard<std::mutex> lock(_send_lock);
+	int send_que_size = _send_que.size();
 
+	if (send_que_size > MAX_SENDQUE) {
+		std::cout << "session: " << _uuid << " send que faulled, size is " << MAX_SENDQUE << std::endl;
+		return;
+	}
+
+	_send_que.push(make_shared<SendNode>(msg.c_str(), msg.length(), msgid));
+	if (send_que_size > 0) {
+		return;
+	}
+	auto& msgnode = _send_que.front();
+	boost::asio::async_write(_socket,boost::asio::buffer(msgnode->_data, msgnode->_total_len),
+		std::bind(&CSession::HandleWrite, this, std::placeholders::_1, SharedSelf()));
+}
 
 // 先读取头部数据
 void CSession::AsyncReadHead(int total_len)
@@ -52,7 +86,6 @@ void CSession::AsyncReadHead(int total_len)
 		// 捕获 self 是为了生命周期管理，捕获 this 是为了方便访问 CSession 成员。
 
 		try {
-
 			//检查异步读取操作是否发生错误
 			if (ec) {
 				std::cout << "handler read failed, error is " << ec.what() << std::endl;
@@ -87,6 +120,7 @@ void CSession::AsyncReadHead(int total_len)
 			if (msg_id > MAX_LENGTH) {
 				std::cout << "invalid msg_id is " << msg_id << endl;
 				_server->ClearSession(_uuid); // 移除非法会话
+				Close();
 				return;
 			}
 
@@ -183,8 +217,28 @@ void CSession::asyncReadLen(std::size_t read_len, std::size_t total_len, std::fu
 
 void CSession::HandleWrite(const boost::system::error_code& error, std::shared_ptr<CSession> shared_self)
 {
+	try {
+		if (!error) {
+			std::lock_guard<std::mutex> lock(_send_lock);
+			_send_que.pop();
+			if (!_send_que.empty()) {
+				auto& msgnode = _send_que.front();
+				boost::asio::async_write(_socket, boost::asio::buffer(msgnode->_data, msgnode->_total_len),
+					std::bind(&CSession::HandleWrite, this, std::placeholders::_1, shared_self));
+			}
+		}
+		else {
+			std::cout << "handler write failed, error is " << error.what() << std::endl;
+			Close();
+			_server->ClearSession(_uuid);
+		}
+	}
+	catch (std::exception& e) {
+		std::cerr << "Exception code : " << e.what() << endl;
+	}
 }
 
-LogicNode::LogicNode(shared_ptr<CSession>, shared_ptr<RecvNode>)
-{
+LogicNode::LogicNode(shared_ptr<CSession> session, shared_ptr<RecvNode> recvnode)
+	: _session(session), _recvnode(recvnode){
+
 }

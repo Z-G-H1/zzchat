@@ -7,6 +7,7 @@
 #include <jdbc/cppconn/resultset.h>
 #include <jdbc/cppconn/statement.h>
 #include <jdbc/cppconn/exception.h>
+#include "data.h"
 
 class SqlConnection {
 public:
@@ -130,12 +131,6 @@ private:
 	std::thread _check_thread;
 };
 
-struct UserInfo {
-	std::string name;
-	std::string pwd;
-	int uid;
-	std::string email;
-};
 
 class MysqlDao
 {
@@ -146,7 +141,7 @@ public:
 	bool CheckEmail(const std::string& name, const std::string& email);
 	bool UpdatePwd(const std::string& name, const std::string& newpwd);
 	bool CheckPwd(const std::string& name, const std::string& pwd, UserInfo& userInfo);
-	bool TestProcedure(const std::string& email, int& uid, std::string& name);
+	std::shared_ptr<UserInfo> GetUser(int uid);
 private:
 	std::unique_ptr<MysqlPool> pool_;
 };
