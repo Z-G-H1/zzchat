@@ -8,7 +8,6 @@
 #include "RedisMgr.h"
 #include "MysqlMgr.h"
 #include "AsioIOServicePool.h"
-#include <iostream>
 #include <memory>
 #include <string>
 #include <thread>
@@ -42,10 +41,11 @@ void RunServer() {
 	boost::asio::signal_set signals(io_context, SIGINT, SIGTERM);
 
 	// 设置异步等待SIGINT信号
-	signals.async_wait([&server](const boost::system::error_code& error, int signal_number) {
+	signals.async_wait([&server, &io_context](const boost::system::error_code& error, int signal_number) {
 		if (!error) {
 			std::cout << "shutting down server..." << std::endl;
 			server->Shutdown(); // 关闭grpc服务器
+			io_context.stop(); // 停止io_context
 		}
 	});
 	// 在单独的线程中运行io_context

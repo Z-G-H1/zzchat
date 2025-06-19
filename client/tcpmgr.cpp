@@ -1,5 +1,11 @@
 #include "tcpmgr.h"
 #include <QAbstractSocket>
+#include "usermgr.h"
+
+TcpMgr::~TcpMgr()
+{
+
+}
 
 TcpMgr::TcpMgr() : _host(""), _port(0), _b_recv_pending(false), _message_id(0), _message_len()
 {
@@ -108,7 +114,10 @@ void TcpMgr::initHandlers()
             emit sig_login_failed(err);
             return ;
         }
-
+        UserMgr::GetInstance()->SetUid(jsonObj["uid"].toInt());
+        UserMgr::GetInstance()->SetName(jsonObj["name"].toString());
+        UserMgr::GetInstance()->SetToken(jsonObj["token"].toString());
+        emit sig_switch_chatdilg();
     });
 }
 
@@ -157,5 +166,4 @@ void TcpMgr::slot_send_data(ReqId reqId, QString data)
 
     // 发送数据
     _socket.write(block);
-
 }

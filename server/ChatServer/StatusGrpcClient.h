@@ -4,6 +4,7 @@
 #include "const.h"
 #include "Singleton.h"
 #include "ConfigMgr.h"
+#include "message.pb.h"
 
 using grpc::Channel;
 using grpc::Status;
@@ -11,6 +12,8 @@ using grpc::ClientContext;
 
 using message::GetChatServerReq;
 using message::GetChatServerRsp;
+using message::LoginRsp;
+using message::LoginReq;
 using message::StatusService;
 
 class StatusConPool {
@@ -82,6 +85,8 @@ public:
 
 	}
 	GetChatServerRsp GetChatServer(int uid);
+	LoginRsp Login(int uid, std::string token);
+
 
 private:
 	StatusGrpcClient();

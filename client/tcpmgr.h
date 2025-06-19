@@ -13,6 +13,7 @@ class TcpMgr:public QObject, public Singleton<TcpMgr>,
     Q_OBJECT
 public:
     ~TcpMgr();
+//    void CloseConnection();
 private:
     friend class Singleton<TcpMgr>;
     TcpMgr();
@@ -35,6 +36,7 @@ signals:
     void sig_con_success(bool success);
     void sig_send_data(ReqId reqId, QString data);
     void sig_login_failed(int err);
+    void sig_switch_chatdilg();
 };
 
 #endif // TCPMGR_H

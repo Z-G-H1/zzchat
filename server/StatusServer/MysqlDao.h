@@ -150,4 +150,3 @@ public:
 private:
 	std::unique_ptr<MysqlPool> pool_;
 };
-

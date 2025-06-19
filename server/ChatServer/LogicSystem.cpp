@@ -19,42 +19,41 @@ void LogicSystem::LoginHandler(shared_ptr<CSession> session, const short& msg_id
 	reader.parse(msg_data, root);
 	std::cout << "user login uid is  " << root["uid"].asInt() << " user token  is "
 		<< root["token"].asString() << endl;
+	int uid = root["uid"].asInt();
 
-	std::string return_str = root.toStyledString();
-	session->Send(return_str, msg_id);
+	// 从状态服务器获取token匹配是否准确
+	auto rsp = StatusGrpcClient::GetInstance()->Login(uid, root["token"].asString());
+	Json::Value  rtvalue;
+	Defer defer([this, &rtvalue, session]() {
+		std::string return_str = rtvalue.toStyledString();
+		session->Send(return_str, MSG_CHAT_LOGIN_RSP);
+	});
 
-	//auto rsp = StatusGrpcClient::GetInstance()->Login(uid, root["token"].asString());
-	//Json::Value  rtvalue;
-	//Defer defer([this, &rtvalue, session]() {
-	//	std::string return_str = rtvalue.toStyledString();
-	//	session->Send(return_str, MSG_CHAT_LOGIN_RSP);
-	//	});
+	rtvalue["error"] = rsp.error();
+	if (rsp.error() != ErrorCodes::Success) {
+		return;
+	}
 
-	//rtvalue["error"] = rsp.error();
-	//if (rsp.error() != ErrorCodes::Success) {
-	//	return;
-	//}
+	//内存中查询用户信息
+	auto find_iter = _users.find(uid);
+	std::shared_ptr<UserInfo> user_info = nullptr;
+	if (find_iter == _users.end()) {
+		//查询数据库
+		user_info = MysqlMgr::GetInstance()->GetUser(uid);
+		if (user_info == nullptr) {
+			rtvalue["error"] = ErrorCodes::UidInvalid;
+			return;
+		}
 
-	////内存中查询用户信息
-	//auto find_iter = _users.find(uid);
-	//std::shared_ptr<UserInfo> user_info = nullptr;
-	//if (find_iter == _users.end()) {
-	//	//查询数据库
-	//	user_info = MysqlMgr::GetInstance()->GetUser(uid);
-	//	if (user_info == nullptr) {
-	//		rtvalue["error"] = ErrorCodes::UidInvalid;
-	//		return;
-	//	}
+		_users[uid] = user_info;
+	}
+	else {
+		user_info = find_iter->second;
+	}
 
-	//	_users[uid] = user_info;
-	//}
-	//else {
-	//	user_info = find_iter->second;
-	//}
-
-	//rtvalue["uid"] = uid;
-	//rtvalue["token"] = rsp.token();
-	//rtvalue["name"] = user_info->name;
+	rtvalue["uid"] = uid;
+	rtvalue["token"] = rsp.token();
+	rtvalue["name"] = user_info->name;
 }
 
 LogicSystem::~LogicSystem()
@@ -64,6 +63,7 @@ LogicSystem::~LogicSystem()
 	_worker_thread.join();
 }
 
+// 生产者
 void LogicSystem::PostMsgToQue(shared_ptr<LogicNode> msg)
 {
 	std::unique_lock<std::mutex> unique_lk(_mutex);
@@ -75,7 +75,7 @@ void LogicSystem::PostMsgToQue(shared_ptr<LogicNode> msg)
 	}
 }
 
-
+// 消费者
 void LogicSystem::DealMsg()
 {
 	for (;;) {
