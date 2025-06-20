@@ -5,3 +5,6 @@ server/VerifyServer/node_modules
 server/StatusServer/StatusServer/
 server/StatusServer/x64/
 server/StatusServer/.vs
+server/ChatServer/ChatServer/
+server/ChatServer/x64/
+server/ChatServer/.vs

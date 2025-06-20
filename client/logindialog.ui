@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1126</width>
-    <height>1333</height>
+    <width>314</width>
+    <height>558</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -47,6 +47,12 @@
        </property>
        <item>
         <widget class="QLabel" name="err_tip">
+         <property name="maximumSize">
+          <size>
+           <width>16777215</width>
+           <height>25</height>
+          </size>
+         </property>
          <property name="text">
           <string/>
          </property>
@@ -58,15 +64,24 @@
       </layout>
      </item>
      <item>
-      <widget class="QWidget" name="widget" native="true">
+      <widget class="QWidget" name="head_widget" native="true">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>319</height>
+        </size>
+       </property>
        <layout class="QGridLayout" name="gridLayout">
         <item row="0" column="0">
-         <widget class="QLabel" name="label_2">
+         <widget class="QLabel" name="head_label">
+          <property name="minimumSize">
+           <size>
+            <width>200</width>
+            <height>200</height>
+           </size>
+          </property>
           <property name="text">
            <string/>
-          </property>
-          <property name="pixmap">
-           <pixmap resource="rc.qrc">:/pic/resource/login.png</pixmap>
           </property>
           <property name="scaledContents">
            <bool>true</bool>
@@ -87,7 +102,7 @@
        <item>
         <widget class="QLabel" name="user_label">
          <property name="text">
-          <string>用户 : </string>
+          <string>邮箱 : </string>
          </property>
         </widget>
        </item>
@@ -277,8 +292,6 @@
    <header>clickedlabel.h</header>
   </customwidget>
  </customwidgets>
- <resources>
-  <include location="rc.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

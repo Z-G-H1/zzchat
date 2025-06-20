@@ -1,13 +1,17 @@
 #include "logindialog.h"
 #include "ui_logindialog.h"
 #include <QDebug>
+#include <QPainter>
 #include "clickedlabel.h"
 #include "HttpMgr.h"
+#include "tcpmgr.h"
+
 LoginDialog::LoginDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::LoginDialog)
 {
     ui->setupUi(this);
+    initHead();
     ui->pass_edit->setEchoMode(QLineEdit::Password);
     connect(ui->register_btn, &QPushButton::clicked, this, &LoginDialog::switchRegister);
     ui->forget_label->SetState("normal","hover","","selected","selected_hover","");
@@ -17,6 +21,11 @@ LoginDialog::LoginDialog(QWidget *parent) :
     // 连接登录回包信号
     connect(HttpMgr::GetInstance().get(), &HttpMgr::sig_login_mod_finish, this,
             &LoginDialog::slot_login_mod_finish);
+
+    //连接tcp连接请求的信号和槽函数
+    connect(this,&LoginDialog::sig_tcp_connect, TcpMgr::GetInstance().get(), &TcpMgr::slot_tcp_connect);
+    //连接tcp管理者发出的连接成功信号
+    connect(TcpMgr::GetInstance().get(), &TcpMgr::sig_con_success, this, &LoginDialog::slot_tcp_con_finish);
 }
 
 void LoginDialog::initHttpHandlers()
@@ -29,8 +38,19 @@ void LoginDialog::initHttpHandlers()
             return ;
         }
         auto user = jsonObj["user"].toString();
-        showTip(tr("登录成功"), true);
-        qDebug() << "user is " << user;
+
+        ServerInfo si;
+        si.Uid = jsonObj["uid"].toInt();
+        si.Host = jsonObj["host"].toString();
+        si.Token = jsonObj["token"].toString();
+        si.Port = jsonObj["port"].toString();
+
+        _uid = si.Uid;
+        _token = si.Token;
+        qDebug()<< "user is " << user << " uid is " << si.Uid <<" host is "
+                << si.Host << " Port is " << si.Port << " Token is " << si.Token;
+
+        emit sig_tcp_connect(si);
     });
 
 }
@@ -71,6 +91,62 @@ void LoginDialog::slot_login_mod_finish(ReqId id, QString res, ErrorCodes err)
     _handlers[id](jsonDoc.object());
 
     return;
+}
+
+void LoginDialog::slot_tcp_con_finish(bool bsuccess)
+{
+    if(bsuccess){
+        showTip(tr("服务连接成功, 正在登录..."), true);
+        // 发送tcp 请求给 chat server
+        QJsonObject jsonObj;
+        jsonObj["uid"] = _uid;
+        jsonObj["token"] = _token;
+
+        QJsonDocument doc(jsonObj);
+        QString jsonString = doc.toJson(QJsonDocument::Indented);
+
+        emit TcpMgr::GetInstance()->sig_send_data(ReqId::ID_CHAT_LOGIN, jsonString);
+    }else{
+        showTip(tr("网络错误"),false);
+        enableBtn(true);
+    }
+}
+
+void LoginDialog::slot_login_failed(int err)
+{
+    QString result = QString("登录失败， err is %1").arg(err);
+
+    showTip(result, false);
+    enableBtn(true);
+}
+
+void LoginDialog::initHead()
+{
+    // 加载图片
+    QPixmap originalPixmap(":/pic/resource/head_2.jpg");
+      // 设置图片自动缩放
+    qDebug()<< originalPixmap.size() << ui->head_label->size();
+    originalPixmap = originalPixmap.scaled(ui->head_label->size(),
+            Qt::KeepAspectRatio, Qt::SmoothTransformation);
+
+    // 创建一个和原始图片相同大小的QPixmap，用于绘制圆角图片
+    QPixmap roundedPixmap(originalPixmap.size());
+    roundedPixmap.fill(Qt::transparent); // 用透明色填充
+
+    QPainter painter(&roundedPixmap);
+    painter.setRenderHint(QPainter::Antialiasing); // 设置抗锯齿，使圆角更平滑
+    painter.setRenderHint(QPainter::SmoothPixmapTransform);
+
+    // 使用QPainterPath设置圆角
+    QPainterPath path;
+    path.addRoundedRect(0, 0, originalPixmap.width(), originalPixmap.height(), 10, 10); // 最后两个参数分别是x和y方向的圆角半径
+    painter.setClipPath(path);
+
+    // 将原始图片绘制到roundedPixmap上
+    painter.drawPixmap(0, 0, originalPixmap);
+
+    // 设置绘制好的圆角图片到QLabel上
+    ui->head_label->setPixmap(roundedPixmap);
 }
 
 void LoginDialog::on_login_btn_clicked()
@@ -130,6 +206,13 @@ bool LoginDialog::checkPwdValid()
     return true;
 }
 
+bool LoginDialog::enableBtn(bool enabled)
+{
+    ui->login_btn->setEnabled(enabled);
+    ui->register_btn->setEnabled(enabled);
+    return true;
+}
+
 void LoginDialog::AddTipErr(TipErr te, QString tips)
 {
     _tip_errs[te] = tips;
@@ -145,7 +228,6 @@ void LoginDialog::DelTipErr(TipErr te)
     }
     showTip(_tip_errs.first(), false);
 }
-
 
 void LoginDialog::showTip(QString str, bool b_ok){
     if( b_ok ){
