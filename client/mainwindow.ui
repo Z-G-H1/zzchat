@@ -26,7 +26,6 @@
    <string>zz chat</string>
   </property>
   <widget class="QWidget" name="centralwidget"/>
-  <widget class="QStatusBar" name="statusbar"/>
  </widget>
  <resources/>
  <connections/>
