@@ -18,9 +18,12 @@ public:
 
 private slots:
     void on_return_btn_clicked();
+
     void on_varify_btn_clicked();
+
     void slot_reset_mod_finish(ReqId id, QString res, ErrorCodes err);
     void on_sure_btn_clicked();
+
 private:
     bool checkUserValid();
     bool checkPassValid();

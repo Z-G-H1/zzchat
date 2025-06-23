@@ -2,12 +2,12 @@
 #define REGISTERDIALOG_H
 
 #include <QDialog>
-#include "ui_registerdialog.h"
 #include "global.h"
-#include "HttpMgr.h"
-#include <QRegularExpression>
-#include <QtDebug>
+#include <functional>
 #include <QMap>
+#include <QJsonObject>
+#include <QSet>
+#include <QTimer>
 
 namespace Ui {
 class RegisterDialog;
@@ -24,26 +24,27 @@ public:
 private slots:
     void on_get_code_clicked();
     void on_sure_btn_clicked();
+
     void on_return_btn_clicked();
-    void on_concel_btn_clicked();
+
+    void on_cancel_btn_clicked();
+
 public slots:
     void slot_reg_mod_finish(ReqId id, QString res, ErrorCodes err);
-
 private:
-    void showTip(QString str, bool b_ok);
-    void initHttpHandlers();
-    void AddTipErr(TipErr te, QString tips);
-    void DelTipErr(TipErr te);
     bool checkUserValid();
-    bool checkPassValid();
     bool checkEmailValid();
-    bool checkVerifyValid();
+    bool checkPassValid();
+    bool checkVarifyValid();
     bool checkConfirmValid();
+    void initHttpHandlers();
+    void AddTipErr(TipErr te,QString tips);
+    void DelTipErr(TipErr te);
     void ChangeTipPage();
-
     Ui::RegisterDialog *ui;
-    QMap<TipErr, QString> _tip_errs;
+    void showTip(QString str,bool b_ok);
     QMap<ReqId, std::function<void(const QJsonObject&)>> _handlers;
+    QMap<TipErr, QString> _tip_errs;
     QTimer * _countdown_timer;
     int _countdown;
 signals:

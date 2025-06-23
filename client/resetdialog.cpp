@@ -43,7 +43,7 @@ ResetDialog::~ResetDialog()
 
 void ResetDialog::on_return_btn_clicked()
 {
-    qDebug() << "return btn clicked ";
+    qDebug() << "sure btn clicked ";
     emit switchLogin();
 }
 
@@ -247,5 +247,5 @@ void ResetDialog::on_sure_btn_clicked()
     json_obj["passwd"] = xorString(ui->pwd_edit->text());
     json_obj["verifycode"] = ui->varify_edit->text();
     HttpMgr::GetInstance()->PostHttpReq(QUrl(gate_url_prefix+"/reset_pwd"),
-                                        json_obj, ReqId::ID_RESET_PWD,Modules::RESETMOD);
+                 json_obj, ReqId::ID_RESET_PWD,Modules::RESETMOD);
 }

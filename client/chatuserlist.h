@@ -6,7 +6,7 @@
 #include <QScrollBar>
 #include <QDebug>
 
-class ChatUserList : public QListWidget
+class ChatUserList: public QListWidget
 {
     Q_OBJECT
 public:
@@ -14,9 +14,10 @@ public:
 
 protected:
     bool eventFilter(QObject *watched, QEvent *event) override;
-
+private:
+    bool _load_pending;
 signals:
     void sig_loading_chat_user();
 };
 
-#endif
+#endif // CHATUSERLIST_H
