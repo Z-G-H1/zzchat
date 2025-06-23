@@ -8,3 +8,6 @@ server/StatusServer/.vs
 server/ChatServer/ChatServer/
 server/ChatServer/x64/
 server/ChatServer/.vs
+server/ChatServer2/ChatServer2/
+server/ChatServer2/x64/
+server/ChatServer2/.vs
