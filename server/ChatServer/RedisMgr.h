@@ -87,10 +87,8 @@ class RedisMgr : public Singleton<RedisMgr>, public std::enable_shared_from_this
 	friend class Singleton<RedisMgr>;
 public:
 	~RedisMgr();
-	//bool Connect(const std::string& host, int port);
 	bool Get(const std::string& key, std::string& value);
 	bool Set(const std::string& key, const std::string& value);
-	//bool Auth(const std::string& password);
 	bool LPush(const std::string& key, const std::string& value);
 	bool LPop(const std::string& key, std::string& value);
 	bool RPush(const std::string& key, const std::string& value);
@@ -102,6 +100,18 @@ public:
 	bool Del(const std::string& key);
 	bool ExistsKey(const std::string& key);
 	void Close();
+
+	std::string acquireLock(const std::string& lockName,
+		int lockTimeout, int acquireTimeout);
+
+	bool releaseLock(const std::string& lockName,
+		const std::string& identifier);
+
+	void IncreaseCount(std::string server_name);
+	void DecreaseCount(std::string server_name);
+	void InitCount(std::string server_name);
+	void DelCount(std::string server_name);
+
 private:
 	RedisMgr();
 	std::unique_ptr<RedisConPool> _con_pool;
