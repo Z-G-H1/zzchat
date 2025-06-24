@@ -13,17 +13,6 @@ RedisMgr::~RedisMgr()
 	Close();
 }
 
-// 连接操作
-//bool RedisMgr::Connect(const std::string& host, int port)
-//{
-//	this->_connect = redisConnect(host.c_str(), port);
-//	if (this->_connect != NULL && this->_connect->err) {
-//		std::cout << "redis connect error " << this->_connect->errstr << std::endl;
-//		return false;
-//	}
-//	return true;
-//}
-
 // 获取key对应的value
 bool RedisMgr::Get(const std::string& key, std::string& value)
 {
@@ -35,7 +24,7 @@ bool RedisMgr::Get(const std::string& key, std::string& value)
 	auto reply = (redisReply*)redisCommand(connect, "GET %s", key.c_str());
 	if (reply == NULL) {
 		std::cout << "[ GET " << key << "] failed" << std::endl;
-		freeReplyObject(reply);
+		//freeReplyObject(reply);
 		_con_pool->returnConnection(connect);
 		return false;
 	}
@@ -67,7 +56,7 @@ bool RedisMgr::Set(const std::string& key, const std::string& value)
 	// 如果返回NULL说明执行失败
 	if (NULL == reply) {
 		std::cout << "Execute command [ SET " << key << " " << value << "	 ] failed !" << std::endl;
-		freeReplyObject(reply);
+		//freeReplyObject(reply);
 		_con_pool->returnConnection(connect);
 		return false;
 	}
