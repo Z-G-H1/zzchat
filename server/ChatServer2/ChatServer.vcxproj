@@ -125,7 +125,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="AsioIOServicePool.cpp" />
+    <ClCompile Include="ChatGrpcClient.cpp" />
     <ClCompile Include="ChatServer.cpp" />
+    <ClCompile Include="ChatServiceImpl.cpp" />
     <ClCompile Include="ConfigMgr.cpp" />
     <ClCompile Include="CServer.cpp" />
     <ClCompile Include="CSession.cpp" />
@@ -137,9 +139,12 @@
     <ClCompile Include="MysqlMgr.cpp" />
     <ClCompile Include="RedisMgr.cpp" />
     <ClCompile Include="StatusGrpcClient.cpp" />
+    <ClCompile Include="UserMgr.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AsioIOServicePool.h" />
+    <ClInclude Include="ChatGrpcClient.h" />
+    <ClInclude Include="ChatServiceImpl.h" />
     <ClInclude Include="ConfigMgr.h" />
     <ClInclude Include="const.h" />
     <ClInclude Include="CServer.h" />
@@ -154,6 +159,7 @@
     <ClInclude Include="Singleton.h" />
     <ClInclude Include="data.h" />
     <ClInclude Include="StatusGrpcClient.h" />
+    <ClInclude Include="UserMgr.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="config.ini" />

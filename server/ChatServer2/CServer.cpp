@@ -1,5 +1,6 @@
 #include "CServer.h"
 #include "AsioIOServicePool.h"
+#include "UserMgr.h"
 CServer::CServer(boost::asio::io_context& io_context, short port): _io_context(io_context), _port(port),
 _acceptor(io_context, tcp::endpoint(tcp::v4(), port)) {
 	// 初始化 _acceptor 对象，它负责监听并接受新的连接
@@ -15,10 +16,18 @@ CServer::~CServer() {
  * @brief 清除会话的函数
  * @param uuid 
  */
-void CServer::ClearSession(std::string uuid)
+void CServer::ClearSession(std::string session_id)
 {
-	lock_guard<mutex> lock(_mutex);
-	_sessions.erase(uuid);
+	if (_sessions.find(session_id) != _sessions.end()) {
+		//移除用户和session的关联
+		UserMgr::GetInstance()->RmvUserSession(_sessions[session_id]->GetUserId());
+	}
+
+	// 局部作用域 让锁快速释放
+	{
+		lock_guard<mutex> lock(_mutex);
+		_sessions.erase(session_id);
+	}
 }
 
 /**
@@ -33,7 +42,7 @@ void CServer::HandleAccept(shared_ptr<CSession> new_session, const boost::system
 		new_session->Start();
 		// 使用 std::lock_guard 锁定互斥量，确保线程安全，将新会话添加到会话管理列表
 		lock_guard<mutex> lock(_mutex);
-		_sessions.insert(make_pair(new_session->GetUuid(), new_session));
+		_sessions.insert(make_pair(new_session->GetSessionId(), new_session));
 	}
 	else {
 		cout << "session accept failed , error is " << error.what() << endl;

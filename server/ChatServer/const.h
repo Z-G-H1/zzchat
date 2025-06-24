@@ -20,6 +20,12 @@
 #include <boost/uuid/uuid.hpp>  
 #include <boost/uuid/uuid_generators.hpp>  
 #include <boost/uuid/uuid_io.hpp>  
+#include <grpcpp/impl/codegen/client_callback.h>
+#include "message.pb.h"
+#include "message.grpc.pb.h"
+#include <grpcpp/create_channel.h>
+
+
 
 #include "hiredis.h"
 #include "Singleton.h"
@@ -76,3 +82,10 @@ enum MSG_IDS {
 	MSG_CHAT_LOGIN = 1005, //用户登陆
 	MSG_CHAT_LOGIN_RSP = 1006, //用户登陆回包
 };
+
+#define USERIPPREFIX  "uip_"
+#define USERTOKENPREFIX  "utoken_"
+#define IPCOUNTPREFIX  "ipcount_"
+#define USER_BASE_INFO "ubaseinfo_"
+#define LOGIN_COUNT  "logincount"
+#define NAME_INFO  "nameinfo_"
