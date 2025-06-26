@@ -146,7 +146,7 @@ public:
 	bool AddFriendApply(const int& from, const int& to);
 	bool AuthFriendApply(const int& from, const int& to);
 	bool AddFriend(const int& from, const int& to, std::string back_name);
-
+	bool GetApplyList(int touid, std::vector<std::shared_ptr<ApplyInfo>>& applyList, int begin, int limit);
 private:
 	std::unique_ptr<MysqlPool> pool_;
 };
