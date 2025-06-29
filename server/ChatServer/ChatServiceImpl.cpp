@@ -39,7 +39,7 @@ Status ChatServiceImpl::NotifyAddFriend(::grpc::ServerContext* context, const ::
 	return Status::OK;
 }
 Status ChatServiceImpl::NotifyAuthFriend(::grpc::ServerContext* context, const ::message::AuthFriendReq* request, 
-	::message::AuthFriendRsp* response) {
+	::message::AuthFriendRsp* reply) {
     //查找用户是否在本服务器
     auto touid = request->touid();
     auto fromuid = request->fromuid();

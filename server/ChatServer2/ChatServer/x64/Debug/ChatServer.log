@@ -1,39 +1,13 @@
-﻿  ChatServer.cpp
+﻿  ChatGrpcClient.cpp
   Please define _WIN32_WINNT or _WIN32_WINDOWS appropriately. For example:
   - add -D_WIN32_WINNT=0x0601 to the compiler command line; or
   - add _WIN32_WINNT=0x0601 to your project's Preprocessor Definitions.
   Assuming _WIN32_WINNT=0x0601 (i.e. Windows 7 target).
-  CSession.cpp
+  ChatServiceImpl.cpp
   Please define _WIN32_WINNT or _WIN32_WINDOWS appropriately. For example:
   - add -D_WIN32_WINNT=0x0601 to the compiler command line; or
   - add _WIN32_WINNT=0x0601 to your project's Preprocessor Definitions.
   Assuming _WIN32_WINNT=0x0601 (i.e. Windows 7 target).
-D:\Study\QT\project\zzchat\server\ChatServer2\CSession.cpp(51,20): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
-D:\Study\QT\project\zzchat\server\ChatServer2\CSession.cpp(70,20): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
-D:\Study\QT\project\zzchat\server\ChatServer2\CSession.cpp(180,32): warning C4244: “+=”: 从“unsigned __int64”转换到“short”，可能丢失数据
-D:\Developers\VisualStudio2022\Community\VC\Tools\MSVC\14.44.35207\include\xutility(476,82): warning C4267: “参数”: 从“size_t”转换到“short”，可能丢失数据
-  (编译源文件“CSession.cpp”)
-      D:\Developers\VisualStudio2022\Community\VC\Tools\MSVC\14.44.35207\include\xutility(476,82):
-      模板实例化上下文(最早的实例化上下文)为
-          D:\Study\QT\project\zzchat\server\ChatServer2\CSession.cpp(77,17):
-          查看对正在编译的函数 模板 实例化“std::shared_ptr<SendNode> std::make_shared<SendNode,const _Elem*,unsigned __int64,short&>(const _Elem *&&,unsigned __int64 &&,short &)”的引用
-          with
-          [
-              _Elem=char
-          ]
-          D:\Developers\VisualStudio2022\Community\VC\Tools\MSVC\14.44.35207\include\memory(2913,46):
-          查看对正在编译的函数 模板 实例化“std::_Ref_count_obj2<SendNode>::_Ref_count_obj2<_Ty,unsigned __int64,short&>(_Ty &&,unsigned __int64 &&,short &)”的引用
-          with
-          [
-              _Ty=const char *
-          ]
-          D:\Developers\VisualStudio2022\Community\VC\Tools\MSVC\14.44.35207\include\memory(2100,18):
-          查看对正在编译的函数 模板 实例化“void std::_Construct_in_place<_Ty,const char*,unsigned __int64,short&>(_Ty &,const char *&&,unsigned __int64 &&,short &) noexcept(false)”的引用
-          with
-          [
-              _Ty=SendNode
-          ]
-  
   LogicSystem.cpp
   Please define _WIN32_WINNT or _WIN32_WINDOWS appropriately. For example:
   - add -D_WIN32_WINNT=0x0601 to the compiler command line; or
@@ -45,51 +19,6 @@ D:\Study\QT\project\zzchat\server\ChatServer2\MysqlDao.h(43,29): warning C4101: 
 D:\Study\QT\project\zzchat\server\ChatServer2\MysqlDao.h(50,16): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
   (编译源文件“LogicSystem.cpp”)
   
-  message.pb.cc
-D:\Study\QT\project\zzchat\server\ChatServer2\message.pb.cc(943,67): warning C4244: “=”: 从“google::protobuf::uint64”转换到“google::protobuf::int32”，可能丢失数据
-D:\Study\QT\project\zzchat\server\ChatServer2\message.pb.cc(1200,65): warning C4244: “=”: 从“google::protobuf::uint64”转换到“google::protobuf::int32”，可能丢失数据
-D:\Study\QT\project\zzchat\server\ChatServer2\message.pb.cc(1422,67): warning C4244: “=”: 从“google::protobuf::uint64”转换到“google::protobuf::int32”，可能丢失数据
-D:\Study\QT\project\zzchat\server\ChatServer2\message.pb.cc(1718,65): warning C4244: “=”: 从“google::protobuf::uint64”转换到“google::protobuf::int32”，可能丢失数据
-D:\Study\QT\project\zzchat\server\ChatServer2\message.pb.cc(1960,67): warning C4244: “=”: 从“google::protobuf::uint64”转换到“google::protobuf::int32”，可能丢失数据
-D:\Study\QT\project\zzchat\server\ChatServer2\message.pb.cc(1967,65): warning C4244: “=”: 从“google::protobuf::uint64”转换到“google::protobuf::int32”，可能丢失数据
-D:\Study\QT\project\zzchat\server\ChatServer2\message.pb.cc(2254,70): warning C4244: “=”: 从“google::protobuf::uint64”转换到“google::protobuf::int32”，可能丢失数据
-D:\Study\QT\project\zzchat\server\ChatServer2\message.pb.cc(2297,65): warning C4244: “=”: 从“google::protobuf::uint64”转换到“google::protobuf::int32”，可能丢失数据
-D:\Study\QT\project\zzchat\server\ChatServer2\message.pb.cc(2304,67): warning C4244: “=”: 从“google::protobuf::uint64”转换到“google::protobuf::int32”，可能丢失数据
-D:\Study\QT\project\zzchat\server\ChatServer2\message.pb.cc(2628,67): warning C4244: “=”: 从“google::protobuf::uint64”转换到“google::protobuf::int32”，可能丢失数据
-D:\Study\QT\project\zzchat\server\ChatServer2\message.pb.cc(2635,70): warning C4244: “=”: 从“google::protobuf::uint64”转换到“google::protobuf::int32”，可能丢失数据
-D:\Study\QT\project\zzchat\server\ChatServer2\message.pb.cc(2642,67): warning C4244: “=”: 从“google::protobuf::uint64”转换到“google::protobuf::int32”，可能丢失数据
-D:\Study\QT\project\zzchat\server\ChatServer2\message.pb.cc(2882,69): warning C4244: “=”: 从“google::protobuf::uint64”转换到“google::protobuf::int32”，可能丢失数据
-D:\Study\QT\project\zzchat\server\ChatServer2\message.pb.cc(2896,67): warning C4244: “=”: 从“google::protobuf::uint64”转换到“google::protobuf::int32”，可能丢失数据
-D:\Study\QT\project\zzchat\server\ChatServer2\message.pb.cc(3134,67): warning C4244: “=”: 从“google::protobuf::uint64”转换到“google::protobuf::int32”，可能丢失数据
-D:\Study\QT\project\zzchat\server\ChatServer2\message.pb.cc(3141,69): warning C4244: “=”: 从“google::protobuf::uint64”转换到“google::protobuf::int32”，可能丢失数据
-D:\Study\QT\project\zzchat\server\ChatServer2\message.pb.cc(3148,67): warning C4244: “=”: 从“google::protobuf::uint64”转换到“google::protobuf::int32”，可能丢失数据
-D:\Study\QT\project\zzchat\server\ChatServer2\message.pb.cc(3397,69): warning C4244: “=”: 从“google::protobuf::uint64”转换到“google::protobuf::int32”，可能丢失数据
-D:\Study\QT\project\zzchat\server\ChatServer2\message.pb.cc(3404,67): warning C4244: “=”: 从“google::protobuf::uint64”转换到“google::protobuf::int32”，可能丢失数据
-D:\Study\QT\project\zzchat\server\ChatServer2\message.pb.cc(3658,67): warning C4244: “=”: 从“google::protobuf::uint64”转换到“google::protobuf::int32”，可能丢失数据
-D:\Study\QT\project\zzchat\server\ChatServer2\message.pb.cc(3665,69): warning C4244: “=”: 从“google::protobuf::uint64”转换到“google::protobuf::int32”，可能丢失数据
-D:\Study\QT\project\zzchat\server\ChatServer2\message.pb.cc(3672,67): warning C4244: “=”: 从“google::protobuf::uint64”转换到“google::protobuf::int32”，可能丢失数据
-D:\Study\QT\project\zzchat\server\ChatServer2\message.pb.cc(3912,69): warning C4244: “=”: 从“google::protobuf::uint64”转换到“google::protobuf::int32”，可能丢失数据
-D:\Study\QT\project\zzchat\server\ChatServer2\message.pb.cc(3919,67): warning C4244: “=”: 从“google::protobuf::uint64”转换到“google::protobuf::int32”，可能丢失数据
-D:\Study\QT\project\zzchat\server\ChatServer2\message.pb.cc(4143,67): warning C4244: “=”: 从“google::protobuf::uint64”转换到“google::protobuf::int32”，可能丢失数据
-D:\Study\QT\project\zzchat\server\ChatServer2\message.pb.cc(4150,69): warning C4244: “=”: 从“google::protobuf::uint64”转换到“google::protobuf::int32”，可能丢失数据
-D:\Study\QT\project\zzchat\server\ChatServer2\message.pb.cc(4157,67): warning C4244: “=”: 从“google::protobuf::uint64”转换到“google::protobuf::int32”，可能丢失数据
-D:\Study\QT\project\zzchat\server\ChatServer2\message.pb.cc(4401,69): warning C4244: “=”: 从“google::protobuf::uint64”转换到“google::protobuf::int32”，可能丢失数据
-D:\Study\QT\project\zzchat\server\ChatServer2\message.pb.cc(4408,67): warning C4244: “=”: 从“google::protobuf::uint64”转换到“google::protobuf::int32”，可能丢失数据
-D:\Study\QT\project\zzchat\server\ChatServer2\message.pb.cc(4912,67): warning C4244: “=”: 从“google::protobuf::uint64”转换到“google::protobuf::int32”，可能丢失数据
-D:\Study\QT\project\zzchat\server\ChatServer2\message.pb.cc(4919,69): warning C4244: “=”: 从“google::protobuf::uint64”转换到“google::protobuf::int32”，可能丢失数据
-D:\Study\QT\project\zzchat\server\ChatServer2\message.pb.cc(4926,67): warning C4244: “=”: 从“google::protobuf::uint64”转换到“google::protobuf::int32”，可能丢失数据
-D:\Study\QT\project\zzchat\server\ChatServer2\message.pb.cc(5189,65): warning C4244: “=”: 从“google::protobuf::uint64”转换到“google::protobuf::int32”，可能丢失数据
-D:\Study\QT\project\zzchat\server\ChatServer2\message.pb.cc(5392,67): warning C4244: “=”: 从“google::protobuf::uint64”转换到“google::protobuf::int32”，可能丢失数据
-D:\Study\QT\project\zzchat\server\ChatServer2\message.pb.cc(5399,65): warning C4244: “=”: 从“google::protobuf::uint64”转换到“google::protobuf::int32”，可能丢失数据
-  MsgNode.cpp
-  Please define _WIN32_WINNT or _WIN32_WINDOWS appropriately. For example:
-  - add -D_WIN32_WINNT=0x0601 to the compiler command line; or
-  - add _WIN32_WINNT=0x0601 to your project's Preprocessor Definitions.
-  Assuming _WIN32_WINNT=0x0601 (i.e. Windows 7 target).
   正在生成代码...
-  ChatServer.vcxproj -> D:\Study\QT\project\zzchat\server\ChatServer2\x64\Debug\ChatServer.exe
-  D:\Study\QT\project\zzchat\server\ChatServer2\config.ini
-  复制了 1 个文件
-  D:\Study\QT\project\zzchat\server\ChatServer2\mysqlcppconn-9-vs14.dll
-  D:\Study\QT\project\zzchat\server\ChatServer2\mysqlcppconn8-2-vs14.dll
-  复制了 2 个文件
+LogicSystem.obj : error LNK2019: 无法解析的外部符号 "private: bool __cdecl LogicSystem::GetFriendList(int,class std::vector<class std::shared_ptr<struct UserInfo>,class std::allocator<class std::shared_ptr<struct UserInfo> > > &)" (?GetFriendList@LogicSystem@@AEAA_NHAEAV?$vector@V?$shared_ptr@UUserInfo@@@std@@V?$allocator@V?$shared_ptr@UUserInfo@@@std@@@2@@std@@@Z)，函数 "private: void __cdecl LogicSystem::LoginHandler(class std::shared_ptr<class CSession>,short const &,class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> > const &)" (?LoginHandler@LogicSystem@@AEAAXV?$shared_ptr@VCSession@@@std@@AEBFAEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@3@@Z) 中引用了该符号
+D:\Study\QT\project\zzchat\server\ChatServer2\x64\Debug\ChatServer.exe : fatal error LNK1120: 1 个无法解析的外部命令
