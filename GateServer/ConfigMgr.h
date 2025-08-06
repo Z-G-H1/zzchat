@@ -37,7 +37,10 @@ public:
     ~ConfigMgr(){
         _config_map.clear();
     }
-
+    static ConfigMgr& Inst() {
+        static ConfigMgr cfg_mgr;
+        return cfg_mgr;
+    }
     SectionInfo operator[](const std::string& section){
         if(_config_map.find(section) == _config_map.end()){
             return SectionInfo();
