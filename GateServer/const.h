@@ -19,6 +19,10 @@ namespace net = boost::asio;            // from <boost/asio.hpp>
 using tcp = boost::asio::ip::tcp;       // from <boost/asio/ip/tcp.hpp>
 
 
+class ConfigMgr;
+ // 声明 gCfgMgr 是在其他文件中定义的全局变量
+extern ConfigMgr gCfgMgr;
+
 enum ErrorCodes {
     Success = 0,
     Error_Json = 1001,  //Json解析错误

@@ -4,7 +4,7 @@
 CXX := g++
 CXXFLAGS := -std=c++17 -Wall -g
 LDFLAGS := -L/usr/local/lib
-LIBS := -ljsoncpp -lgrpc++ -lgrpc `pkg-config --libs protobuf` -lpthread
+LIBS := -ljsoncpp -lgrpc++ -lgrpc `pkg-config --libs protobuf` -lpthread -lz
 
 
 # Source files and object files

@@ -13,7 +13,6 @@ struct SectionInfo{
         if(&src == this){
             return *this;
         }
-
         this->_section_datas = src._section_datas;
     }
 
