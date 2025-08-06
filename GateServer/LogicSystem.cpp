@@ -1,6 +1,6 @@
 #include "LogicSystem.h"
 #include "HttpConnection.h"
-
+#include "VarifyGrpcClient.h"
 
 LogicSystem::LogicSystem(){
     RegGet("/get_test", [](std::shared_ptr<HttpConnection> connection){
@@ -29,10 +29,11 @@ LogicSystem::LogicSystem(){
             beast::ostream(connection->_response.body()) << jsonstr;
             return true;
         }
-         auto email = src_root["email"].asString();
+        auto email = src_root["email"].asString();
         std::cout << "email is " << email << std::endl;
+        GetVarifyRsp resp = VarifyGrpcClient::GetInstance()->GetVarifyCode(email);
         root["email"] = src_root["email"];
-        root["error"] = ErrorCodes::Success;
+        root["error"] = resp.error();
         std::string jsonstr = root.toStyledString();
         beast::ostream(connection->_response.body()) << jsonstr;
         return true;
