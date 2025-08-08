@@ -38,8 +38,5 @@ target_link_libraries(GateServer
     Boost::system
     Boost::filesystem
     jsoncpp_lib
-    # ##################################################################
-    # 关键修正：将找到的线程库链接到您的程序
-    # ##################################################################
     Threads::Threads
 )

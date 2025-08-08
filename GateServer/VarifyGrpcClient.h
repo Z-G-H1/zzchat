@@ -85,5 +85,6 @@ private:
     VarifyGrpcClient();
     // 使用智能指针 管理 gRPC 客户端存根 它的所有方法（如 GetVarifyCode）直接对应服务端实现的同名方法
     std::unique_ptr<VarifyService::Stub> stub_;
+    // 使用uniqueptr 独占pool的生命周期
     std::unique_ptr<RpcConPool> _pool;
 };
