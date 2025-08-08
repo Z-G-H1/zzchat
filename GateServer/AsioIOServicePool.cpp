@@ -4,7 +4,7 @@
 AsioIOServicePool::AsioIOServicePool(std::size_t size):_ioService(size),_works(size), _nextIOService(0) {
     // _ioService 初始化过了， 调用IOService的默认构造函数，进行了构造，size大小
     for(size_t i=0; i<size; i++){
-        _works[i] = std::unique_ptr<Work>(new Work(_ioService[i]));
+        _works[i] = std::unique_ptr<Work>(new Work(_ioService[i].get_executor()));
     }
 
     for(size_t i=0; i<size; i++){
@@ -28,7 +28,9 @@ void AsioIOServicePool::Stop(){
     //work.reset()是让unique指针置空并释放s
     for(auto & work : _works){
         // 先停止服务
-        work->get_io_context().stop();
+        // 获取 executor，然后获取 io_context 引用
+        auto& io_context = boost::asio::query(work->get_executor(), boost::asio::execution::context);
+        io_context.stop();
         work.reset();
     }
 

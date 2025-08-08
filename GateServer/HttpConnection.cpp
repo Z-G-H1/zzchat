@@ -4,8 +4,8 @@
 // socket无法拷贝构造，使用移动构造
 // 使用移动构造之后尽量避免直接访问左值，原资源可能被“窃取”
 // 单个& 表示左值引用， && 表示右值引用
-HttpConnection::HttpConnection(tcp::socket socket)
-    :_socket(std::move(socket))
+HttpConnection::HttpConnection(net::io_context &ioc)
+    :_socket(ioc)
 {}
 
 void HttpConnection::Start(){

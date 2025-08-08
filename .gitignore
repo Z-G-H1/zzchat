@@ -2,3 +2,4 @@ build/
 *.o
 /VarifyServer/package-lock.json
 /VarifyServer/node_modules
+.vscode/

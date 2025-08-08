@@ -1,33 +1,45 @@
-# CMakeLists.txt for GateServer (Flat Directory Structure)
+# CMakeLists.txt for GateServer (Final Corrected Version)
 
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.15)
 project(GateServer CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Find source files in the current directory
-file(GLOB SOURCES "*.cpp")
+# 强制 CMake 优先搜索 /usr/local 路径
+list(APPEND CMAKE_PREFIX_PATH "/usr/local")
 
-# Find required libraries using pkg-config (recommended)
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(JSONCPP REQUIRED jsoncpp)
-pkg_check_modules(GRPC REQUIRED grpc++)
-pkg_check_modules(PROTOBUF REQUIRED protobuf)
+# 查找所有必需的库
+find_package(Protobuf CONFIG REQUIRED)
+find_package(gRPC CONFIG REQUIRED)
+find_package(Boost REQUIRED COMPONENTS system filesystem)
+find_package(jsoncpp REQUIRED)
+find_package(Threads REQUIRED)
+find_package(hiredis REQUIRED)
 
-# Add executable
-add_executable(GateServer ${SOURCES})
 
-# Link libraries
-target_link_libraries(GateServer
-    PRIVATE
-    ${JSONCPP_LIBRARIES}
-    ${GRPC_LIBRARIES}
-    ${PROTOBUF_LIBRARIES}
-    pthread
+# 自动包含所有需要的头文件目录
+include_directories(
+    ${Boost_INCLUDE_DIRS}
+    ${jsoncpp_INCLUDE_DIRS}
 )
 
-# Set output directory for the executable
-set_target_properties(GateServer PROPERTIES
-    RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
+# 自动查找当前目录下所有的 .cpp 和 .cc 文件
+file(GLOB SOURCES "*.cpp" "*.cc")
+
+# 创建可执行文件
+add_executable(GateServer ${SOURCES})
+
+# 链接所有库到您的程序
+target_link_libraries(GateServer
+    PRIVATE
+    gRPC::grpc++
+    protobuf::libprotobuf
+    Boost::system
+    Boost::filesystem
+    jsoncpp_lib
+    # ##################################################################
+    # 关键修正：将找到的线程库链接到您的程序
+    # ##################################################################
+    Threads::Threads
 )

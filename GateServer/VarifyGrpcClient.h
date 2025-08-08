@@ -55,7 +55,8 @@ public:
         if (b_stop_) {
             return;
         }
-        connections_.push(context);
+        // 使用move，因为uniqueptr 要独占所有权 不可复制，只能move
+        connections_.push(std::move(context));
         // 队列中有了新的资源，唤醒一个
         cond_.notify_one();
         return;
@@ -84,4 +85,5 @@ private:
     VarifyGrpcClient();
     // 使用智能指针 管理 gRPC 客户端存根 它的所有方法（如 GetVarifyCode）直接对应服务端实现的同名方法
     std::unique_ptr<VarifyService::Stub> stub_;
+    std::unique_ptr<RpcConPool> _pool;
 };
