@@ -4,19 +4,19 @@
 
 class RedisConPool{
 public:
-    RedisConPool(size_t poolSize, std::string host, int port) 
+    RedisConPool(size_t poolSize, const std::string& host, int port) 
         : poolSize_(poolSize), b_stop_(false), port_(port), host_(host)
     {
         for(size_t i=0; i<poolSize_; i++){
-            auto context = redisConnect(host.c_str(), port);
+            std::unique_ptr<redisContext> context(redisConnect(host.c_str(), port));
             if (context == nullptr || context->err != 0) {
 				if (context != nullptr) {
-					redisFree(context);
+					redisFree(context.release());
                     std::cout << "Redis Connect failed!" << std::endl;
 				}
 				continue;
 			}
-            connections_.push(context);
+            connections_.push(std::move(context));
         }
     }
 
@@ -24,13 +24,13 @@ public:
         std::lock_guard<std::mutex> lock(mutex_);
         Close();
         while(!connections_.empty()){
-            auto context = connections_.front();
-            redisFree(context);
+            auto context = std::move(connections_.front());
+            redisFree(context.release());
             connections_.pop();
         }
     }
     
-    redisContext* getConnection(){
+    std::unique_ptr<redisContext> getConnection(){
         // 相当于消费者
         std::unique_lock<std::mutex> lock(mutex_);
         // 条件变量
@@ -46,17 +46,17 @@ public:
             return nullptr;
         }
 
-        auto context = connections_.front();
+        auto context = std::move(connections_.front());
         connections_.pop();
         return context;
     }
 
-    void returnConnection(redisContext* context){
+    void returnConnection(std::unique_ptr<redisContext> context){
         std::lock_guard<std::mutex> lock(mutex_);
         if(b_stop_){
             return;
         }
-        connections_.push(context);
+        connections_.push(std::move(context));
         // 唤醒
         cond_.notify_one();
         return;
@@ -71,7 +71,7 @@ private:
     size_t poolSize_;
     int port_;
     std::string host_;
-    std::queue<redisContext*> connections_;
+    std::queue<std::unique_ptr<redisContext>> connections_;
     std::mutex mutex_;
     std::condition_variable cond_;
 };

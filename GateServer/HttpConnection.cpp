@@ -48,7 +48,6 @@ void HttpConnection::HandleReq(){
         return;
     }
 
-
     if(_request.method() == http::verb::get) {
         PreParseGetParam();
         bool success = LogicSystem::GetInstance()->HandleGet(_get_url, shared_from_this());

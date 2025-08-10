@@ -1,5 +1,3 @@
-# CMakeLists.txt for GateServer (Final Corrected Version)
-
 cmake_minimum_required(VERSION 3.15)
 project(GateServer CXX)
 
@@ -18,7 +16,7 @@ find_package(Boost REQUIRED COMPONENTS system filesystem)
 find_package(jsoncpp REQUIRED)
 find_package(Threads REQUIRED)
 find_package(hiredis REQUIRED)
-
+find_package(mysqlcppconn8 REQUIRED)
 
 # 自动包含所有需要的头文件目录
 include_directories(
@@ -42,4 +40,5 @@ target_link_libraries(GateServer
     jsoncpp_lib
     Threads::Threads
     hiredis::hiredis
+    mysqlcppconn
 )
