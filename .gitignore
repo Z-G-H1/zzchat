@@ -3,3 +3,4 @@ build/
 /VarifyServer/package-lock.json
 /VarifyServer/node_modules
 .vscode/
+/GateServer/cmake

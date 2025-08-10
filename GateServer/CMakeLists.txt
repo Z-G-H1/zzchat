@@ -8,6 +8,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # 强制 CMake 优先搜索 /usr/local 路径
 list(APPEND CMAKE_PREFIX_PATH "/usr/local")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
+
 
 # 查找所有必需的库
 find_package(Protobuf CONFIG REQUIRED)
@@ -39,4 +41,5 @@ target_link_libraries(GateServer
     Boost::filesystem
     jsoncpp_lib
     Threads::Threads
+    hiredis::hiredis
 )

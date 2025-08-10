@@ -5,7 +5,7 @@ int main()
 {
     try
     {
-        ConfigMgr gCfgMgr;
+        auto &gCfgMgr = ConfigMgr::Inst();
         // 这里用到了重构的 [] 运算符。
         std::string gate_port_url = gCfgMgr["GateServer"]["Port"];
         unsigned short gate_port = atoi(gate_port_url.c_str());
