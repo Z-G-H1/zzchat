@@ -2,18 +2,9 @@
 #include "HttpConnection.h"
 #include "VarifyGrpcClient.h"
 #include "RedisMgr.h"
+#include "MysqlMgr.h"
 
 LogicSystem::LogicSystem(){
-    RegGet("/get_test", [](std::shared_ptr<HttpConnection> connection){
-        beast::ostream(connection->_response.body()) << "receive get_test req";
-        int i=0;
-        for (auto& elem : connection->_get_params) {
-            i++;
-            beast::ostream(connection->_response.body()) << "param" << i << " key is " << elem.first;
-            beast::ostream(connection->_response.body()) << ", " <<  " value is " << elem.second << std::endl;
-        }
-    });
-
     RegPost("/get_varifycode", [](std::shared_ptr<HttpConnection> connection){
         // 获取请求体
         auto body_str = beast::buffers_to_string(connection->_request.body().data());
@@ -58,7 +49,7 @@ LogicSystem::LogicSystem(){
             beast::ostream(connection->_response.body()) << jsonstr;
             return ;
         }
-
+        // 提取数据
         auto email = src_root["email"].asString();
         auto name = src_root["user"].asString();
         auto pwd = src_root["passwd"].asString();
@@ -66,7 +57,7 @@ LogicSystem::LogicSystem(){
         
         // 转换成功 先查询redis，看输入的验证码是否合法
         std::string varify_code;
-        bool b_get_varify = RedisMgr::GetInstance()->Get(email, varify_code);
+        bool b_get_varify = RedisMgr::GetInstance()->Get(CODEPREFIX+email, varify_code);
         if(!b_get_varify){
             std::cout << "varify code error" << std::endl;
             root["error"] = ErrorCodes::VarifyCodeErr;
@@ -74,7 +65,7 @@ LogicSystem::LogicSystem(){
             beast::ostream(connection->_response.body()) << jsonstr;
             return ;
         }
-
+        // 验证码比对
         if (varify_code != src_root["varifycode"].asString()) {
             std::cout << " varify code error" << std::endl;
             root["error"] = ErrorCodes::VarifyCodeErr;
@@ -94,6 +85,14 @@ LogicSystem::LogicSystem(){
         }
 
         // 查完redis，再检查数据库
+        int uid = MysqlMgr::GetInstance()->RegUser(name, email, pwd);
+        if(uid == 0 || uid == -1){
+            std::cout << "user or email already exist" << std::endl;
+            root["error"] = ErrorCodes::UserExist;
+            std::string jsonstr = root.toStyledString();
+            beast::ostream(connection->_response.body()) << jsonstr;
+            return ;
+        }
 
         root["error"] = 0;
         root["email"] = email;

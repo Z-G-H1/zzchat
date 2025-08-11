@@ -16,12 +16,12 @@ find_package(Boost REQUIRED COMPONENTS system filesystem)
 find_package(jsoncpp REQUIRED)
 find_package(Threads REQUIRED)
 find_package(hiredis REQUIRED)
-find_package(mysqlcppconn8 REQUIRED)
 
 # 自动包含所有需要的头文件目录
 include_directories(
     ${Boost_INCLUDE_DIRS}
     ${jsoncpp_INCLUDE_DIRS}
+    /usr/include/cppconn
 )
 
 # 自动查找当前目录下所有的 .cpp 和 .cc 文件

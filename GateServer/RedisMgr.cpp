@@ -5,7 +5,8 @@ RedisMgr::RedisMgr(){
     auto cfg_mgr = ConfigMgr::Inst();
     auto host = cfg_mgr["Redis"]["Host"];
     auto port = cfg_mgr["Redis"]["Port"];
-    _pool.reset(new RedisConPool(5,host, atoi(port.c_str())));
+    auto pwd = cfg_mgr["Redis"]["Passwd"];
+    _pool.reset(new RedisConPool(5,host, atoi(port.c_str()), pwd.c_str()));
 }
 
 RedisMgr::~RedisMgr(){
@@ -51,12 +52,11 @@ bool RedisMgr::Set(const std::string &key, const std::string &value){
 		return false;
 	}
     auto reply = (redisReply*)redisCommand(connect, "SET %s %s", key.c_str(), value.c_str());
-    
+    std::cout << reply->str << std::endl;
     // 如果返回NULL说明执行失败
     if(NULL == reply){
         std::cout << "Execute command [ SET " << key << " " << value << " ] failure ! " << std::endl;
         _pool->returnConnection(connect);
-        freeReplyObject(reply);
         return false;
     }
     // 如果执行失败则释放连接

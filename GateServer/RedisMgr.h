@@ -4,19 +4,31 @@
 
 class RedisConPool{
 public:
-    RedisConPool(size_t poolSize, const std::string& host, int port) 
+    RedisConPool(size_t poolSize, std::string host, int port, std::string pwd) 
         : poolSize_(poolSize), b_stop_(false), port_(port), host_(host)
     {
         for(size_t i=0; i<poolSize_; i++){
-            std::unique_ptr<redisContext> context(redisConnect(host.c_str(), port));
+            auto context = redisConnect(host.c_str(), port);
             if (context == nullptr || context->err != 0) {
 				if (context != nullptr) {
-					redisFree(context.release());
+					redisFree(context);
                     std::cout << "Redis Connect failed!" << std::endl;
 				}
 				continue;
 			}
-            connections_.push(std::move(context));
+
+            auto reply = (redisReply*)redisCommand(context, "AUTH %s", pwd.c_str());
+			if (reply->type == REDIS_REPLY_ERROR) {
+				std::cout << "认证失败" << std::endl;
+				// 执行失败 释放redisCommand 执行后返回redisReply所占用的内存
+				freeReplyObject(reply);
+				continue;
+			}
+
+			// 执行成功 释放redisCommand 执行后返回redisReply所占用的内存
+			freeReplyObject(reply);
+			std::cout << "连接成功" << std::endl;
+            connections_.push(context);
         }
     }
 
@@ -24,13 +36,13 @@ public:
         std::lock_guard<std::mutex> lock(mutex_);
         Close();
         while(!connections_.empty()){
-            auto context = std::move(connections_.front());
-            redisFree(context.release());
+            auto context = connections_.front();
+            redisFree(context);
             connections_.pop();
         }
     }
     
-    std::unique_ptr<redisContext> getConnection(){
+    redisContext* getConnection(){
         // 相当于消费者
         std::unique_lock<std::mutex> lock(mutex_);
         // 条件变量
@@ -46,17 +58,17 @@ public:
             return nullptr;
         }
 
-        auto context = std::move(connections_.front());
+        auto context = connections_.front();
         connections_.pop();
         return context;
     }
 
-    void returnConnection(std::unique_ptr<redisContext> context){
+    void returnConnection(redisContext* context){
         std::lock_guard<std::mutex> lock(mutex_);
         if(b_stop_){
             return;
         }
-        connections_.push(std::move(context));
+        connections_.push(context);
         // 唤醒
         cond_.notify_one();
         return;
@@ -71,7 +83,8 @@ private:
     size_t poolSize_;
     int port_;
     std::string host_;
-    std::queue<std::unique_ptr<redisContext>> connections_;
+    std::string pwd_;
+    std::queue<redisContext*> connections_;
     std::mutex mutex_;
     std::condition_variable cond_;
 };
