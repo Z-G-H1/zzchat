@@ -105,6 +105,68 @@ LogicSystem::LogicSystem(){
         return ;
 
     });
+
+    RegPost("/reset_pwd",[](std::shared_ptr<HttpConnection> connection){
+        // 获取请求体
+        auto body_str = beast::buffers_to_string(connection->_request.body().data());
+        std::cout << "receive body is " << body_str << std::endl;
+        connection->_response.set(http::field::content_type, "text/json");
+        Json::Reader reader;
+        Json::Value root;
+        Json::Value src_root;
+
+        // 转换数据
+        bool parse_success = reader.parse(body_str, src_root);
+        if(!parse_success){
+            std::cout << "Failed to parse Json data! " << std::endl;
+            root["error"] = ErrorCodes::Error_Json;
+            std::string jsonstr = root.toStyledString();
+            beast::ostream(connection->_response.body()) << jsonstr;
+            return ;
+        }
+        // 提取数据
+        auto email = src_root["email"].asString();
+        auto name = src_root["user"].asString();
+        auto pwd = src_root["passwd"].asString();
+        
+        // 转换成功 先查询redis，看输入的验证码是否合法
+        std::string varify_code;
+        bool b_get_varify = RedisMgr::GetInstance()->Get(CODEPREFIX+email, varify_code);
+        if(!b_get_varify){
+            std::cout << "varify code error" << std::endl;
+            root["error"] = ErrorCodes::VarifyCodeErr;
+            std::string jsonstr = root.toStyledString();
+            beast::ostream(connection->_response.body()) << jsonstr;
+            return ;
+        }
+        // 验证码比对
+        if (varify_code != src_root["varifycode"].asString()) {
+            std::cout << " varify code error" << std::endl;
+            root["error"] = ErrorCodes::VarifyCodeErr;
+            std::string jsonstr = root.toStyledString();
+            beast::ostream(connection->_response.body()) << jsonstr;
+            return ;
+        }
+
+        // 检查数据库判断用户名和邮箱是否匹配
+        bool check_user_email = MysqlMgr::GetInstance()->CheckEmail(name, email);
+        if(!check_user_email){
+            std::cout << "user email not match " << std::endl;
+            root["error"] = ErrorCodes::EmailNotMatch;
+            std::string jsonstr = root.toStyledString();
+            beast::ostream(connection->_response.body()) << jsonstr;
+            return ;
+        }
+
+        root["error"] = 0;
+        root["email"] = email;
+        root["user"]= name;
+        root["passwd"] = pwd;
+        root["varifycode"] = src_root["varifycode"].asString();
+        std::string jsonstr = root.toStyledString();
+        beast::ostream(connection->_response.body()) << jsonstr;
+        return ;
+    });
 }
 
 LogicSystem::~LogicSystem(){
