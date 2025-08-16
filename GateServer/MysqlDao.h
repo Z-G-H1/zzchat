@@ -71,6 +71,13 @@ private:
     std::string schema_;
 };
 
+struct UserInfo {
+	std::string name;
+	std::string pwd;
+	int uid;
+	std::string email;
+};
+
 class MysqlDao{
 public:
     MysqlDao();
@@ -78,6 +85,8 @@ public:
     int RegUser(const std::string& name, const std::string& email, const std::string& pwd);
     bool UpdatePwd(const std::string& name, const std::string& newpwd);
     bool CheckEmail(const std::string& name, const std::string& email);
+    bool CheckPwd(const std::string& name, const std::string& pwd, UserInfo& userInfo);
+
 private:
     std::unique_ptr<MysqlPool> pool_;
 };

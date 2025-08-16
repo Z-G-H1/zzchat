@@ -167,6 +167,50 @@ LogicSystem::LogicSystem(){
         beast::ostream(connection->_response.body()) << jsonstr;
         return ;
     });
+
+    RegPost("/user_login",[](std::shared_ptr<HttpConnection> connection){
+        // 获取请求体
+        auto body_str = beast::buffers_to_string(connection->_request.body().data());
+        std::cout << "receive body is " << body_str << std::endl;
+        connection->_response.set(http::field::content_type, "text/json");
+        Json::Reader reader;
+        Json::Value root;
+        Json::Value src_root;
+
+        // 转换数据
+        bool parse_success = reader.parse(body_str, src_root);
+        if(!parse_success){
+            std::cout << "Failed to parse Json data! " << std::endl;
+            root["error"] = ErrorCodes::Error_Json;
+            std::string jsonstr = root.toStyledString();
+            beast::ostream(connection->_response.body()) << jsonstr;
+            return ;
+        }
+        // 提取数据 获取用户名和密码
+        auto name = src_root["user"].asString();
+        auto pwd = src_root["passwd"].asString();
+        UserInfo userinfo;
+        
+        // 检查数据库判断用户名和邮箱是否匹配
+        bool check_pwd = MysqlMgr::GetInstance()->CheckPwd(name, pwd,userinfo);
+        if(!check_pwd){
+            std::cout << "user pwd not match " << std::endl;
+            root["error"] = ErrorCodes::EmailNotMatch;
+            std::string jsonstr = root.toStyledString();
+            beast::ostream(connection->_response.body()) << jsonstr;
+            return ;
+        }
+
+        root["error"] = 0;
+        root["user"]= name;
+        root["token"] = reply.token();
+        root["host"] = reply.host();
+        root["varifycode"] = src_root["varifycode"].asString();
+        std::string jsonstr = root.toStyledString();
+        beast::ostream(connection->_response.body()) << jsonstr;
+        return ;
+    });
+
 }
 
 LogicSystem::~LogicSystem(){

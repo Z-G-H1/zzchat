@@ -2,7 +2,7 @@
 #include "HttpConnection.h"
 #include "AsioIOServicePool.h"
 
-CServer::CServer(net::io_context &ioc, unsigned short &port)
+CServer::CServer(net::io_context &ioc, unsigned short port)
     : _ioc(ioc), _acceptor(ioc,tcp::endpoint(tcp::v4(),port))
 {
 

@@ -125,3 +125,42 @@ bool MysqlDao::CheckEmail(const std::string& name, const std::string& email){
         return false;
     }
 }
+
+bool MysqlDao::CheckPwd(const std::string& name, const std::string& pwd, UserInfo& userInfo){
+    auto con = pool_->getConnection();
+    try
+    {
+        if(con == nullptr){
+            pool_->returnConncetion(std::move(con));
+            return false;
+        }
+
+        // 准备调用存贮过程
+        std::unique_ptr<sql::PreparedStatement> stmt(con->prepareStatement("SELECT * from user where name = ?"));
+
+        stmt->setString(1, name);
+        //执行
+        std::unique_ptr<sql::ResultSet> res(stmt->executeQuery());
+
+        // 遍历结果集合
+        while(res->next()){
+            // std::cout << "Check Email: " << res->getString("email") << std::endl;
+            if(pwd != res->getString("pwd")){
+                pool_->returnConncetion(std::move(con));
+                return false;
+            }
+            userInfo.email = res->getString("email");
+            userInfo.name = name;
+            userInfo.pwd = pwd;
+            userInfo.uid = res->getInt("uid");
+            return true;
+        }
+    }
+    catch (sql::SQLException& e) {
+        pool_->returnConncetion(std::move(con));
+        std::cerr << "SQLException: " << e.what();
+        std::cerr << " (MySQL error code: " << e.getErrorCode();
+        std::cerr << ", SQLState: " << e.getSQLState() << " )" << std::endl;
+        return false;
+    }
+}
