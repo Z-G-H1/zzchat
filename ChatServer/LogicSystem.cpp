@@ -82,7 +82,7 @@ void LogicSystem::LoginHandler(std::shared_ptr<CSession> session, const short &m
     std::cout << "user login uid is  " << root["uid"].asInt() << " user token  is "
 		<< root["token"].asString() << std::endl;
 
-    // 从状态服务器获取token 看是否匹配
+    // 从状态服务器获取token 看是否匹配  在statusServer中进行比对
     auto resp = StatusGrpcClient::GetInstance()->Login(uid, root["token"].asString());
     Json::Value rtvalue;
     rtvalue["error"] = resp.error();

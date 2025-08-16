@@ -48,6 +48,3 @@ LoginRsp StatusGrpcClient::Login(int uid, std::string token){
         return resp;
     }
 }
-
-
-
