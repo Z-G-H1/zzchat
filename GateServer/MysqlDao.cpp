@@ -47,6 +47,7 @@ int MysqlDao::RegUser(const std::string &name, const std::string &email, const s
             pool_->returnConncetion(std::move(con));
             return -1;
         }
+
         pool_->returnConncetion(std::move(con));
         return -1;
     }
@@ -153,8 +154,10 @@ bool MysqlDao::CheckPwd(const std::string& name, const std::string& pwd, UserInf
             userInfo.name = name;
             userInfo.pwd = pwd;
             userInfo.uid = res->getInt("uid");
-            return true;
+            break;
         }
+        pool_->returnConncetion(std::move(con));
+        return true;
     }
     catch (sql::SQLException& e) {
         pool_->returnConncetion(std::move(con));

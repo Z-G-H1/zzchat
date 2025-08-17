@@ -3,6 +3,7 @@
 #include "VarifyGrpcClient.h"
 #include "RedisMgr.h"
 #include "MysqlMgr.h"
+#include "StatusGrpcClient.h"
 
 LogicSystem::LogicSystem(){
     RegPost("/get_varifycode", [](std::shared_ptr<HttpConnection> connection){
@@ -201,11 +202,23 @@ LogicSystem::LogicSystem(){
             return ;
         }
 
+        // 从状态服务器获取token
+        auto reply = StatusGrpcClient::GetInstance()->GetChatServer(userinfo.uid);
+        if(reply.error() != 0){
+            // 有错误
+            std::cout << " grpc get chat server failed, error is " << reply.error()<< std::endl;
+            root["error"] = ErrorCodes::RPCFailed;
+            std::string jsonstr = root.toStyledString();
+            beast::ostream(connection->_response.body()) << jsonstr;
+            return ;
+        }
+        std::cout << "succeed to load userinfo uid is " << userinfo.uid << std::endl;
         root["error"] = 0;
-        root["user"]= name;
+        root["user"] = name;
+        root["uid"] = userinfo.uid;
         root["token"] = reply.token();
         root["host"] = reply.host();
-        root["varifycode"] = src_root["varifycode"].asString();
+        root["port"] = reply.port();
         std::string jsonstr = root.toStyledString();
         beast::ostream(connection->_response.body()) << jsonstr;
         return ;

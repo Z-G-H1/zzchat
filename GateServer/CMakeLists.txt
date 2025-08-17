@@ -19,8 +19,6 @@ find_package(hiredis REQUIRED)
 
 # 自动包含所有需要的头文件目录
 include_directories(
-    ${Boost_INCLUDE_DIRS}
-    ${jsoncpp_INCLUDE_DIRS}
     /usr/include/cppconn
 )
 

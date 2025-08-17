@@ -26,6 +26,8 @@ GetChatServerRsp StatusGrpcClient::GetChatServer(int uid){
         resp.set_error(ErrorCodes::RPCFailed);
         return resp;
     }
-
 }
 
+StatusGrpcClient::~StatusGrpcClient(){
+    
+}

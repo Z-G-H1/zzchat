@@ -28,8 +28,6 @@ StatusServiceImpl::StatusServiceImpl(){
 }
 // 重写具体的 RPC 方法
 Status StatusServiceImpl::GetChatServer(ServerContext *context, const GetChatServerReq *request, GetChatServerRsp *reply){
-    std::string prefix("status server has received : ");
-
     const auto &server = getChatServer();
     reply->set_host(server.host);
     reply->set_port(server.port);
