@@ -1,5 +1,6 @@
 #include "StatusServiceImpl.h"
 #include "ConfigMgr.h"
+#include "RedisMgr.h"
 
 std::string generate_unique_string(){
     // 创建UUID对象
@@ -38,14 +39,35 @@ Status StatusServiceImpl::GetChatServer(ServerContext *context, const GetChatSer
 }
 
 void StatusServiceImpl::insertToken(int uid, std::string token){
-    std::lock_guard<std::mutex> lock(_token_mtx);
-    _tokens[uid] = token;
-}  
+    // 插入到Redis中存储
+    std::string uid_str = std::to_string(uid);
+    std::string key = USERTOKENPREFIX + uid_str;
+    RedisMgr::GetInstance()->Set(key, token);
+}
 
 ChatServer StatusServiceImpl::getChatServer(){
     std::lock_guard<std::mutex> lock(_server_mtx);
     auto minserver = _servers.begin()->second;
+    auto count_str = RedisMgr::GetInstance()->HGet(LOGIN_COUNT, minserver.name);
+    // 不存在该服务器, 则不使用
+    if(count_str.empty()){
+        // 数目设为最大值
+        minserver.con_count = INT_MAX;
+    }else{
+        minserver.con_count = std::stoi(count_str);
+    }
+    
     for(auto &server : _servers){
+        if (server.second.name == minserver.name) {
+            continue;
+        }
+
+        // 获取当前服务器的数量
+        auto count = RedisMgr::GetInstance()->HGet(LOGIN_COUNT, server.second.name);
+        if(count.empty()){
+            continue;
+        }
+        server.second.con_count = std::stoi(count);
         if(server.second.con_count < minserver.con_count){
             minserver = server.second;
         }
@@ -55,24 +77,26 @@ ChatServer StatusServiceImpl::getChatServer(){
 
 
 Status StatusServiceImpl::Login(ServerContext* context, const LoginReq* request,LoginRsp* reply){
-    std::lock_guard<std::mutex> lock(_token_mtx);
     auto uid = request->uid();
     auto token = request->token();
-    auto iter = _tokens.find(uid);
     
-    if(iter == _tokens.end()){
-        // 没有找到token
+    std::string uid_str = std::to_string(uid);
+    std::string key = USERTOKENPREFIX + uid_str;
+    std::string token_redis = "";
+    bool exist = RedisMgr::GetInstance()->Get(key, token_redis);
+
+    if(!exist){
         reply->set_error(ErrorCodes::UidInvalid);
         return Status::OK;
     }
-
-    if(iter->second != token){
+    
+    if(token != token_redis){
         reply->set_error(ErrorCodes::TokenInvalid);
-		return Status::OK;
+        return Status::OK;
     }
 
     reply->set_error(ErrorCodes::Success);
 	reply->set_uid(uid);
-	reply->set_token(iter->second);
+	reply->set_token(token);
 	return Status::OK;
 }
