@@ -3,6 +3,7 @@
 #include "MysqlMgr.h"
 #include "message.grpc.pb.h"
 #include "StatusGrpcClient.h"
+#include "ConfigMgr.h"
 
 LogicSystem::LogicSystem(): _b_stop(false){
     RegisterCallBackS();
@@ -17,7 +18,6 @@ void LogicSystem::RegisterCallBackS(){
 
 LogicSystem::~LogicSystem(){
     _b_stop = true;
-    _users.clear();
     _consume.notify_one();
     _worker_thread.join();
 }
@@ -77,8 +77,8 @@ void LogicSystem::LoginHandler(std::shared_ptr<CSession> session, const short &m
     Json::Value root;
     reader.parse(msg_data, root);
     int uid = root["uid"].asInt();
-    std::cout << "user login uid is  " << root["uid"].asInt() << " user token  is "
-		<< root["token"].asString() << std::endl;
+    auto token = root["token"].asString();
+    std::cout << "user login uid is  " << uid << " user token  is " << token << std::endl;
 
     // 从状态服务器获取token 看是否匹配  在statusServer中进行比对
     auto resp = StatusGrpcClient::GetInstance()->Login(uid, root["token"].asString());
@@ -90,25 +90,76 @@ void LogicSystem::LoginHandler(std::shared_ptr<CSession> session, const short &m
         return;
     }
 
-    // 内存中查询用户信息
-    auto find_iter = _users.find(uid);
-    std::shared_ptr<UserInfo> user_info = nullptr;
-    if(find_iter == _users.end()){
-        // 查询数据库
-        user_info = MysqlMgr::GetInstance()->GetUser(uid);
-        if(user_info == nullptr){
-            rtvalue["error"] = ErrorCodes::UidInvalid;
-            return;
-        }
-        // 添加到内存
-        _users[uid] = user_info;
-    }else{
-        user_info = find_iter->second;
+    // 获取用户信息
+    std::string uid_str = std::to_string(uid);
+    std::string base_key = USER_BASE_INFO + uid_str;
+    auto user_info = std::make_shared<UserInfo>();
+    bool b_base = GetBaseInfo(base_key, uid, user_info);
+    if (!b_base) {
+        rtvalue["error"] = ErrorCodes::UidInvalid;
+        return;
     }
 
     rtvalue["uid"] = uid;
+    rtvalue["pwd"] = user_info->pwd;
     rtvalue["name"] = user_info->name;
+    rtvalue["email"] = user_info->email;
+    rtvalue["nick"] = user_info->nick;
+    rtvalue["desc"] = user_info->desc;
+    rtvalue["sex"] = user_info->sex;
+    rtvalue["icon"] = user_info->icon;
+
+    // 从数据库获取好友申请列表
+
+
+    // 获取用户的好友列表
+
+
+    //登录到当前服务器，登录数量加1
+    auto &cfg = ConfigMgr::Inst();
+    auto server_name = cfg["SelfServer"]["Name"];
+    auto cur_num = RedisMgr::GetInstance()->HGet(LOGIN_COUNT, server_name);
+    int count = 0;
+    if(!cur_num.empty()){
+        count = std::stoi(cur_num);
+    }
+    count++;
+    // key field value
+    RedisMgr::GetInstance()->HSet(LOGIN_COUNT, server_name, std::to_string(count));
+
+    //为用户设置登录ip server的名字
+    std::string  ipkey = USERIPPREFIX + uid_str;
+    RedisMgr::GetInstance()->Set(ipkey, server_name);
+
     rtvalue["token"] = resp.token();
     std::string jsonstr = rtvalue.toStyledString();
     session->Send(jsonstr, msg_id);
+}
+
+
+
+bool LogicSystem::GetBaseInfo(std::string base_key, int uid, std::shared_ptr<UserInfo>& userinfo){
+    // 根据basekey 和 uid 获取用户信息
+    // 先在redis中查询
+    std::string info_str = "";
+    bool exist = RedisMgr::GetInstance()->Get(base_key, info_str);
+    if(exist){
+        Json::Reader reader;
+        Json::Value root;
+        reader.parse(info_str,root);
+        userinfo->uid = root["uid"].asInt();
+        userinfo->name = root["name"].asString();
+        userinfo->pwd = root["pwd"].asString();
+        userinfo->email = root["email"].asString();
+        userinfo->nick = root["nick"].asString();
+        userinfo->desc = root["desc"].asString();
+        userinfo->sex = root["sex"].asInt();
+        userinfo->icon = root["icon"].asString();
+        std::cout << "user login uid is  " << userinfo->uid << " name  is "
+			<< userinfo->name << " pwd is " << userinfo->pwd << " email is " << userinfo->email << std::endl;
+    }else{
+        // redis中没有， 查询mysql
+        userinfo = MysqlMgr::GetInstance()->GetUser(uid);
+        
+    }
 }

@@ -190,6 +190,9 @@ std::shared_ptr<UserInfo> MysqlDao::GetUser(int uid){
             userInfo->name = res->getString("name");
             userInfo->pwd = res->getString("pwd");
             userInfo->uid = uid;
+            userInfo->nick = res->getString("nick");
+			userInfo->desc = res->getString("desc");
+			userInfo->sex = res->getInt("sex");
             break;
         }
         pool_->returnConncetion(std::move(con));

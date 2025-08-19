@@ -47,7 +47,7 @@ int main(){
 			server->Shutdown();
         });
         auto port = cfg["SelfServer"]["Port"];
-        CServer server(io_context, atoi(port.c_str()));
+        CServer s(io_context, atoi(port.c_str()));
         io_context.run();
         RedisMgr::GetInstance()->HDel(LOGIN_COUNT, server_name);
         RedisMgr::GetInstance()->Close();
