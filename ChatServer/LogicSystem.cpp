@@ -102,7 +102,6 @@ void LogicSystem::LoginHandler(std::shared_ptr<CSession> session, const short &m
         }
         // 添加到内存
         _users[uid] = user_info;
-
     }else{
         user_info = find_iter->second;
     }
