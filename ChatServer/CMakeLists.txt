@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
-project(GateServer CXX)
+project(ChatServer1 CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -19,19 +19,18 @@ find_package(hiredis REQUIRED)
 
 # 自动包含所有需要的头文件目录
 include_directories(
-    ${Boost_INCLUDE_DIRS}
-    ${jsoncpp_INCLUDE_DIRS}
     /usr/include/cppconn
 )
 
 # 自动查找当前目录下所有的 .cpp 和 .cc 文件
 file(GLOB SOURCES "*.cpp" "*.cc")
+# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g") 
 
 # 创建可执行文件
-add_executable(GateServer ${SOURCES})
+add_executable(ChatServer1 ${SOURCES})
 
 # 链接所有库到您的程序
-target_link_libraries(GateServer
+target_link_libraries(ChatServer1
     PRIVATE
     gRPC::grpc++
     protobuf::libprotobuf

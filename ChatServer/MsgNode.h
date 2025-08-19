@@ -1,3 +1,4 @@
+#pragma once
 #include "const.h"
 
 // 基类节点， 存储节点的头部

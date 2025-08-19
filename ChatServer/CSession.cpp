@@ -1,5 +1,8 @@
 #include "CSession.h"
 #include "LogicSystem.h"
+#include "CServer.h"
+
+class LogicNode;
 
 CSession::CSession(net::io_context& ioc, CServer* server)
     : _socket(ioc), _server(server), _b_head_parse(false)
@@ -40,7 +43,7 @@ void CSession::Send(char* msg, int max_len, short msg_id){
     }
     auto &msgNode = _send_que.front();
     boost::asio::async_write(_socket, boost::asio::buffer(msgNode->_data,msgNode->_total_len),
-        [self = shared_from_this()](boost::system::error_code& error, size_t bytes_transferred){
+        [self = shared_from_this()](const boost::system::error_code& error, size_t bytes_transferred){
             self->HandleWrite(error, bytes_transferred);
     });
 }
@@ -60,7 +63,7 @@ void CSession::Send(std::string msg, short msgid){
     }
     auto &msgNode = _send_que.front();
     boost::asio::async_write(_socket, boost::asio::buffer(msgNode->_data,msgNode->_total_len),
-        [self = shared_from_this()](boost::system::error_code& error, size_t bytes_transferred){
+        [self = shared_from_this()](const boost::system::error_code& error, size_t bytes_transferred){
             self->HandleWrite(error, bytes_transferred);
     });
 }
@@ -73,7 +76,7 @@ void CSession::HandleWrite(const boost::system::error_code& error, size_t bytes_
             // 队列不为空
             auto &msg_node = _send_que.front();
             boost::asio::async_write(_socket, boost::asio::buffer(msg_node->_data,msg_node->_total_len),
-                [self = shared_from_this()](boost::system::error_code& error, size_t bytes_transferred){
+                [self = shared_from_this()](const boost::system::error_code& error, size_t bytes_transferred){
                     self->HandleWrite(error, bytes_transferred);
             });
         }   

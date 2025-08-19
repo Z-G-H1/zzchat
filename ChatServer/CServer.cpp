@@ -1,5 +1,4 @@
 #include "CServer.h"
-#include "HttpConnection.h"
 #include "AsioIOServicePool.h"
 
 CServer::CServer(net::io_context &ioc, unsigned short port)

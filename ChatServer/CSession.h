@@ -1,7 +1,8 @@
+#pragma once
 #include "const.h"
 #include "MsgNode.h"
-#include "CServer.h"
 
+class CServer;
 
 class CSession : public std::enable_shared_from_this<CSession>{
 

@@ -1,6 +1,4 @@
 #include "LogicSystem.h"
-#include "HttpConnection.h"
-#include "VarifyGrpcClient.h"
 #include "RedisMgr.h"
 #include "MysqlMgr.h"
 #include "message.grpc.pb.h"
@@ -51,13 +49,13 @@ void LogicSystem::DealMsg(){
                 if(iter == _fun_callbacks.end()){
                     // 没有对应的回调函数
                     std::cout << "msg id [" << msg_node->_recv_node->msg_id << "] handler not found" << std::endl;
-                    return;
+                    continue;
                 }
                 // 调用回调函数
                 iter->second(msg_node->_session, msg_node->_recv_node->msg_id, 
                     std::string(msg_node->_recv_node->_data, msg_node->_recv_node->_total_len));
             }
-            return; 
+            break; 
         }
         // 没有停服
         auto msg_node = _msg_que.front();
@@ -67,7 +65,7 @@ void LogicSystem::DealMsg(){
         if(iter == _fun_callbacks.end()){
             // 没有对应的回调函数
             std::cout << "msg id [" << msg_node->_recv_node->msg_id << "] handler not found" << std::endl;
-            return;
+            continue;
         }
         iter->second(msg_node->_session, msg_node->_recv_node->msg_id, 
             std::string(msg_node->_recv_node->_data, msg_node->_recv_node->_total_len));
