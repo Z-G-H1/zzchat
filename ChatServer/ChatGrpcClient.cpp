@@ -25,6 +25,27 @@ ChatGrpcClient::ChatGrpcClient(){
 
 AddFriendRsp ChatGrpcClient::NotifyAddFriend(std::string server_ip, const AddFriendReq &req){
     AddFriendRsp resp;
+    resp.set_error(ErrorCodes::Success);
+    resp.set_applyuid(req.applyuid());
+    resp.set_touid(req.touid());
+
+    auto find_iter = _pools.find(server_ip);
+    if(find_iter == _pools.end()){
+        return resp;
+    }
+    // 获取该serverip 对应的连接池
+    auto &pool = find_iter->second;
+    ClientContext context;
+    auto stub = pool->getConnection();
+    Status status = stub->NotifyAddFriend(&context, req, &resp);
+    
+    pool->returnConnection(std::move(stub));
+
+    if(!status.ok()){
+        resp.set_error(ErrorCodes::RPCFailed);
+        return resp;
+    }
+
     return resp;
 }
 
