@@ -82,6 +82,7 @@ public:
     bool CheckPwd(const std::string& name, const std::string& pwd, UserInfo& userInfo);
     std::shared_ptr<UserInfo> GetUser(int uid);
     std::shared_ptr<UserInfo> GetUser(std::string name);
+    bool AddFriendApply(const int fromuid,const int touid);
 
 private:
     std::unique_ptr<MysqlPool> pool_;
