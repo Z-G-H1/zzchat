@@ -15,6 +15,7 @@ private:
     void DealMsg();
     void RegisterCallBackS();
     void LoginHandler(std::shared_ptr<CSession> session, const short& msg_id, const std::string& msg_data);
+    void SearchInfo(std::shared_ptr<CSession>session, const short& msg_id, const std::string& msg_data);
 
     bool isPureDigit(std::string uid);
 	void GetUserByUid(std::string uid_str, Json::Value& rtvalue);

@@ -206,3 +206,43 @@ std::shared_ptr<UserInfo> MysqlDao::GetUser(int uid){
         return nullptr;
     }
 }
+
+std::shared_ptr<UserInfo> MysqlDao::GetUser(std::string name){
+    auto con = pool_->getConnection();
+    try
+    {
+        if(con == nullptr){
+            pool_->returnConncetion(std::move(con));
+            return nullptr;
+        }
+
+        // 准备调用存贮过程
+        std::unique_ptr<sql::PreparedStatement> stmt(con->prepareStatement("SELECT * from user where name = ?"));
+        stmt->setString(1, name);
+        //执行
+        std::unique_ptr<sql::ResultSet> res(stmt->executeQuery());
+        std::shared_ptr<UserInfo> userInfo = nullptr;
+        // 遍历结果集合
+        while(res->next()){
+            // std::cout << "Check Email: " << res->getString("email") << std::endl;
+            userInfo.reset(new UserInfo);
+            userInfo->email = res->getString("email");
+            userInfo->name = res->getString("name");
+            userInfo->pwd = res->getString("pwd");
+            userInfo->uid = res->getInt("uid");
+            userInfo->nick = res->getString("nick");
+			userInfo->desc = res->getString("desc");
+			userInfo->sex = res->getInt("sex");
+            break;
+        }
+        pool_->returnConncetion(std::move(con));
+        return userInfo;
+    }
+    catch (sql::SQLException& e) {
+        pool_->returnConncetion(std::move(con));
+        std::cerr << "SQLException: " << e.what();
+        std::cerr << " (MySQL error code: " << e.getErrorCode();
+        std::cerr << ", SQLState: " << e.getSQLState() << " )" << std::endl;
+        return nullptr;
+    }
+}
