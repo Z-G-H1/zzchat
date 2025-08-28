@@ -127,7 +127,7 @@ void LogicSystem::LoginHandler(std::shared_ptr<CSession> session, const short &m
     rtvalue["sex"] = user_info->sex;
     rtvalue["icon"] = user_info->icon;
 
-    // 从数据库获取好友申请列表
+    // 从数据库获取 申请未处理的添加好友请求列表
     std::vector<std::shared_ptr<ApplyInfo>> apply_list;
     auto b_apply = MysqlMgr::GetInstance()->GetApplyList(uid, apply_list, 0, 10);
     if(b_apply){
@@ -145,7 +145,21 @@ void LogicSystem::LoginHandler(std::shared_ptr<CSession> session, const short &m
     }
 
     // 获取用户的好友列表
-
+    std::vector<std::shared_ptr<UserInfo>> friend_list;
+    bool b_friend_list = MysqlMgr::GetInstance()->GetFriendList(uid, friend_list);
+    if(b_friend_list){
+        for(auto& friend_ : friend_list){
+            Json::Value obj;
+            obj["name"] = friend_->name;
+            obj["uid"] = friend_->uid;
+            obj["icon"] = friend_->icon;
+            obj["nick"] = friend_->nick;
+            obj["sex"] = friend_->sex;
+            obj["desc"] = friend_->desc;
+            obj["back"] = friend_->back;
+            rtvalue["friend_list"].append(obj);
+        }
+    }
 
     //登录到当前服务器，登录数量加1
     auto &cfg = ConfigMgr::Inst();
@@ -168,7 +182,7 @@ void LogicSystem::LoginHandler(std::shared_ptr<CSession> session, const short &m
 
     rtvalue["token"] = resp.token();
     std::string jsonstr = rtvalue.toStyledString();
-    session->Send(jsonstr, msg_id);
+    session->Send(jsonstr, MSG_CHAT_LOGIN_RSP);
 }
 
 // 获取用户基本信息
