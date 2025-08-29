@@ -74,10 +74,37 @@ AuthFriendRsp ChatGrpcClient::NotifyAuthFriend(std::string server_ip, const Auth
 
     return resp;
 }
+
 bool ChatGrpcClient::GetBaseInfo(std::string base_key, int uid, std::shared_ptr<UserInfo>& userinfo){
     return true;
 }
+
 TextChatMsgRsp ChatGrpcClient::NotifyTextChatMsg(std::string server_ip, const TextChatMsgReq& req, const Json::Value& rtvalue){
     TextChatMsgRsp resp;
+    resp.set_error(ErrorCodes::Success);
+
+    resp.set_fromuid(req.fromuid());
+    resp.set_touid(req.touid());
+    for(const auto& text : req.textmsgs()){
+        TextChatData* new_msg = resp.add_textmsgs();
+        new_msg->set_msgid(text.msgid());
+        new_msg->set_msgcontent(text.msgcontent());
+    }
+
+    auto find_iter = _pools.find(server_ip);
+    if(find_iter == _pools.end()){
+        return resp;
+    }
+
+    auto &pool = find_iter->second;
+    ClientContext context;
+    auto stub = pool->getConnection();
+    Status status = stub->NotifyTextChatMsg(&context, req, &resp);
+    pool->returnConnection(std::move(stub));
+
+    if(!status.ok()){
+        resp.set_error(ErrorCodes::RPCFailed);
+        return resp;
+    }
     return resp;    
 }

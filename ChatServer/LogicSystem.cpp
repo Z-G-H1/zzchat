@@ -28,6 +28,10 @@ void LogicSystem::RegisterCallBackS(){
     _fun_callbacks[ID_AUTH_FRIEND_REQ] = [this](std::shared_ptr<CSession> session, const short& msg_id, const std::string& msg_data){
         AuthFriendApply(session, msg_id, msg_data);
     };
+
+    _fun_callbacks[ID_TEXT_CHAT_MSG_REQ] = [this](std::shared_ptr<CSession> session, const short& msg_id, const std::string& msg_data){
+        DealChatMsg(session, msg_id, msg_data);
+    };
 }
 
 LogicSystem::~LogicSystem(){
@@ -315,6 +319,7 @@ void LogicSystem::AddFriendApply(std::shared_ptr<CSession>session, const short& 
         req.set_nick(apply_info->nick);
     }
     ChatGrpcClient::GetInstance()->NotifyAddFriend(to_ip_value, req);
+    session->Send(rt_str, ID_ADD_FRIEND_RSP);
 }
 
 void LogicSystem::AuthFriendApply(std::shared_ptr<CSession>session, const short& msg_id, const std::string& msg_data){
@@ -329,9 +334,7 @@ void LogicSystem::AuthFriendApply(std::shared_ptr<CSession>session, const short&
     std::cout << "from " << uid << " auth friend to " << touid << std::endl;
 
     Json::Value rtvalue;
-    rtvalue["error"] = ErrorCodes::Success;
-    std::string rt_str = rtvalue.toStyledString();
-  
+    rtvalue["error"] = ErrorCodes::Success;  
 
     auto user_info = std::make_shared<UserInfo>();
     std::string base_key = USER_BASE_INFO + std::to_string(touid);
@@ -400,6 +403,74 @@ void LogicSystem::AuthFriendApply(std::shared_ptr<CSession>session, const short&
     auth_req.set_touid(touid);
     // 发送grpc请求， 告诉对方。
     ChatGrpcClient::GetInstance()->NotifyAuthFriend(to_ip_value, auth_req);
+    session->Send(return_str, ID_AUTH_FRIEND_RSP);
+}
+
+void LogicSystem::DealChatMsg(std::shared_ptr<CSession>session, const short& msg_id, const std::string& msg_data){
+    Json::Reader reader;
+    Json::Value root;
+    reader.parse(msg_data, root);
+
+    auto uid = root["fromuid"].asInt();
+    auto touid = root["touid"].asInt();
+    // 发送消息的内容 使用消息数组的形式进行存储
+    const Json::Value arrays = root["text_array"];
+
+    std::cout << "from " << uid << " auth friend to " << touid << std::endl;
+
+    Json::Value rtvalue;
+    rtvalue["error"] = ErrorCodes::Success;
+    rtvalue["fromuid"] = uid;
+    rtvalue["touid"] = touid;
+    rtvalue["text_array"] = arrays;
+
+    std::string return_str = rtvalue.toStyledString();
+
+    // redis查询目标用户所在的 server
+    auto to_str = std::to_string(touid);
+    auto to_ip_key = USERIPPREFIX + to_str;
+    std::string to_ip_value = "";
+    bool b_ip =  RedisMgr::GetInstance()->Get(to_ip_key, to_ip_value);
+    // 没找到直接返回，目标用户下次登录的时候会从数据库获取到添加上了好友
+    if(!b_ip){
+        session->Send(return_str, ID_TEXT_CHAT_MSG_RSP);
+        return ;
+    }
+    // 如果找到了，看是否与本用户在同一个server
+    auto &cfg = ConfigMgr::Inst();
+    auto self_server = cfg["SelfServer"]["Name"];
+    // 如果在同一个服务器上，
+    if(to_ip_value == self_server){
+        // 在同一个服务器，获取对方的session
+        auto to_session = UserMgr::GetInstance()->GetSession(touid);
+        if(to_session){
+            // 对方在内存中，直接发送给对方。
+            std::string rt_str = rtvalue.toStyledString();
+            // 对方的客户端 接收到请求之后，直接处理消息即可。
+            to_session->Send(rt_str, ID_NOTIFY_TEXT_CHAT_MSG_REQ);
+        }
+        session->Send(return_str, ID_TEXT_CHAT_MSG_RSP);
+        return ;
+    }
+
+    // 如果不在同一个server 使用grpc 发送给所在的server 通知他
+    TextChatMsgReq  text_req;
+    text_req.set_fromuid(uid);
+    text_req.set_touid(touid);
+    // 将消息添加进去
+    for(const auto& text : arrays){
+        auto content = text["content"].asString();
+        auto msgid = text["msgid"].asString();
+        std::cout << "content is " << content << std::endl;
+        std::cout << "msgid is " << msgid << std::endl;
+        // 将消息元素添加到text_req，并返回添加元素的指针
+        auto *text_msg = text_req.add_textmsgs();
+        text_msg->set_msgid(msgid);
+        text_msg->set_msgcontent(content);
+    }
+    // 发送grpc请求， 告诉对方。
+    ChatGrpcClient::GetInstance()->NotifyTextChatMsg(to_ip_value, text_req, rtvalue);
+    session->Send(return_str, ID_TEXT_CHAT_MSG_RSP);
 }
 
 

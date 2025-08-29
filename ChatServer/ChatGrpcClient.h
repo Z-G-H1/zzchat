@@ -15,6 +15,7 @@ using message::AuthFriendRsp;
 using message::AuthFriendReq;
 using message::TextChatMsgRsp;
 using message::TextChatMsgReq;
+using message::TextChatData;
 using message::ChatService;
 
 

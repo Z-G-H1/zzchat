@@ -406,56 +406,34 @@ bool MysqlDao::AddFriend(const int fromuid, const int touid, const std::string& 
     }
 }
 
-bool MysqlDao::GetFriendList(const int uid, std::vector<UserInfo> &list){
+bool MysqlDao::GetFriendList(const int uid, std::vector<std::shared_ptr<UserInfo>> &list){
     auto con = pool_->getConnection();
-    if(con == nullptr){
-        pool_->returnConncetion(std::move(con));
-        return false;
-    }
-    // 要执行多个语句，不自动提交。
-    con->setAutoCommit(false);
-    try{
-        // 准备执行语句
-        std::unique_ptr<sql::PreparedStatement> pstmt(con->prepareStatement("INSERT IGNORE INTO friend(self_id, friend_id, back) "
-			"VALUES (?, ?, ?) "));
-		pstmt->setInt(1, fromuid); // from id
-		pstmt->setInt(2, touid);
-		pstmt->setString(3, bakname);
-        
-        // 执行更新
-        int rowAffected = pstmt->executeUpdate();
-        if(rowAffected < 0){
-            con->rollback();
+    try
+    {
+        if(con == nullptr){
+            pool_->returnConncetion(std::move(con));
             return false;
         }
 
-        // 准备执行第二个语句
-        std::unique_ptr<sql::PreparedStatement> pstmt2(con->prepareStatement("INSERT IGNORE INTO friend(self_id, friend_id, back) "
-			"VALUES (?, ?, ?) "
-		));
-		//反过来的申请时from，验证时to
-		pstmt2->setInt(1, touid); // from id
-		pstmt2->setInt(2, fromuid);
-		pstmt2->setString(3, "");
-		// 执行更新
-		int rowAffected2 = pstmt2->executeUpdate();
-		if (rowAffected2 < 0) {
-			con->rollback();
-			return false;
-		}
-
-		// 提交事务
-		con->commit();
-		std::cout << "addfriend insert friends success" << std::endl;
-
-
+        // 准备调用存贮过程
+        std::unique_ptr<sql::PreparedStatement> stmt(con->prepareStatement("select * from friend where self_id = ?"));
+        stmt->setInt(1, uid);
+        //执行
+        std::unique_ptr<sql::ResultSet> res(stmt->executeQuery());
+        // 遍历结果集合
+        while(res->next()){
+            auto friend_id = res->getInt("friend_id");
+            // 根据id 获取用户的信息
+            auto user_info = GetUser(friend_id);
+            if(user_info == nullptr)
+                continue;
+            user_info->back = user_info->name;
+            list.push_back(user_info);
+        }
+        pool_->returnConncetion(std::move(con));
         return true;
     }
-    catch(sql::SQLException& e){
-        // 如果发生错误，回滚事务
-		if (con) {
-			con->rollback();
-		}
+    catch (sql::SQLException& e) {
         pool_->returnConncetion(std::move(con));
         std::cerr << "SQLException: " << e.what();
         std::cerr << " (MySQL error code: " << e.getErrorCode();
