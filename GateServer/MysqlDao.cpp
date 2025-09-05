@@ -127,7 +127,7 @@ bool MysqlDao::CheckEmail(const std::string& name, const std::string& email){
     }
 }
 
-bool MysqlDao::CheckPwd(const std::string& name, const std::string& pwd, UserInfo& userInfo){
+bool MysqlDao::CheckPwd(const std::string& email, const std::string& pwd, UserInfo& userInfo){
     auto con = pool_->getConnection();
     try
     {
@@ -137,25 +137,28 @@ bool MysqlDao::CheckPwd(const std::string& name, const std::string& pwd, UserInf
         }
 
         // 准备调用存贮过程
-        std::unique_ptr<sql::PreparedStatement> stmt(con->prepareStatement("SELECT * from user where name = ?"));
+        std::unique_ptr<sql::PreparedStatement> stmt(con->prepareStatement("SELECT * from user where email = ?"));
 
-        stmt->setString(1, name);
+        stmt->setString(1, email);
         //执行
         std::unique_ptr<sql::ResultSet> res(stmt->executeQuery());
 
-        // 遍历结果集合
+        std::string origin_pwd = "";
+        // 遍历结果集合 -- 如果不存在，res集合是空的
         while(res->next()){
-            // std::cout << "Check Email: " << res->getString("email") << std::endl;
-            if(pwd != res->getString("pwd")){
-                pool_->returnConncetion(std::move(con));
-                return false;
-            }
-            userInfo.email = res->getString("email");
-            userInfo.name = name;
-            userInfo.pwd = pwd;
-            userInfo.uid = res->getInt("uid");
+            std::cout << "Check pwd: " << res->getString("email") << std::endl;
+            origin_pwd = res->getString("pwd");
             break;
         }
+
+        if(pwd != origin_pwd){
+            pool_->returnConncetion(std::move(con));
+            return false;
+        }
+        userInfo.email = email;
+        userInfo.name = res->getString("name");
+        userInfo.pwd = pwd;
+        userInfo.uid = res->getInt("uid");
         pool_->returnConncetion(std::move(con));
         return true;
     }

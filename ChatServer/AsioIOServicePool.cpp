@@ -41,6 +41,5 @@ void AsioIOServicePool::Stop(){
 
 
 AsioIOServicePool::~AsioIOServicePool(){
-    Stop();
     std::cout << "AsioIOServicePool destruct" << std::endl;
 }

@@ -43,16 +43,16 @@ int main(){
         boost::asio::signal_set signals(io_context, SIGINT, SIGTERM);
         signals.async_wait([&io_context, pool, &server](auto, auto) {
 			io_context.stop();
-			pool->Stop();
-			server->Shutdown();
+            pool->Stop();
+            server->Shutdown();
         });
         auto port = cfg["SelfServer"]["Port"];
         CServer s(io_context, atoi(port.c_str()));
         io_context.run();
+
         RedisMgr::GetInstance()->HDel(LOGIN_COUNT, server_name);
         RedisMgr::GetInstance()->Close();
         grpc_server_thread.join();
-
     }catch (std::exception& e){
         std::cerr << "Exception: " << e.what() << std::endl;
         RedisMgr::GetInstance()->HDel(LOGIN_COUNT, server_name);

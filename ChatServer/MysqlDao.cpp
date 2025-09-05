@@ -171,6 +171,7 @@ std::shared_ptr<UserInfo> MysqlDao::GetUser(int uid){
     auto con = pool_->getConnection();
     try
     {
+
         if(con == nullptr){
             pool_->returnConncetion(std::move(con));
             return nullptr;
@@ -182,6 +183,7 @@ std::shared_ptr<UserInfo> MysqlDao::GetUser(int uid){
         //执行
         std::unique_ptr<sql::ResultSet> res(stmt->executeQuery());
         std::shared_ptr<UserInfo> userInfo = nullptr;
+
         // 遍历结果集合
         while(res->next()){
             // std::cout << "Check Email: " << res->getString("email") << std::endl;
@@ -195,6 +197,7 @@ std::shared_ptr<UserInfo> MysqlDao::GetUser(int uid){
 			userInfo->sex = res->getInt("sex");
             break;
         }
+
         pool_->returnConncetion(std::move(con));
         return userInfo;
     }

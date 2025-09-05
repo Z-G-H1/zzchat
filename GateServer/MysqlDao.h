@@ -10,10 +10,10 @@
 class MysqlPool{
 public:
     MysqlPool(size_t poolsize, const std::string& url,const std::string& user, const std::string& pass,const std::string& schema)
-        : poolSize_(poolsize), url_(url), user_(user), pass_(pass), schema_(schema)
+        : poolSize_(poolsize), url_(url), user_(user), pass_(pass), schema_(schema), b_stop_(false)
     {
         for(size_t i=0; i<poolSize_; i++){
-            sql::mysql::MySQL_Driver* driver = sql::mysql::get_driver_instance();
+            sql::mysql::MySQL_Driver* driver = sql::mysql::get_mysql_driver_instance();
             std::unique_ptr<sql::Connection> con(driver->connect(url_,user_,pass_));
             con->setSchema(schema_);
             connections_.push(std::move(con));

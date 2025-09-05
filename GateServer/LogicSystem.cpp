@@ -87,7 +87,7 @@ LogicSystem::LogicSystem(){
 
         // 查完redis，再检查数据库
         int uid = MysqlMgr::GetInstance()->RegUser(name, email, pwd);
-        if(uid == 0 || uid == -1){
+        if(uid <= 0){
             std::cout << "user or email already exist" << std::endl;
             root["error"] = ErrorCodes::UserExist;
             std::string jsonstr = root.toStyledString();
@@ -134,7 +134,7 @@ LogicSystem::LogicSystem(){
         std::string varify_code;
         bool b_get_varify = RedisMgr::GetInstance()->Get(CODEPREFIX+email, varify_code);
         if(!b_get_varify){
-            std::cout << "varify code error" << std::endl;
+            std::cout << "varify code expired" << std::endl;
             root["error"] = ErrorCodes::VarifyCodeErr;
             std::string jsonstr = root.toStyledString();
             beast::ostream(connection->_response.body()) << jsonstr;
@@ -159,6 +159,16 @@ LogicSystem::LogicSystem(){
             return ;
         }
 
+        // 修改密码逻辑
+        bool b_up = MysqlMgr::GetInstance()->UpdatePwd(name, pwd);
+        if(!b_up){
+            std::cout << "update pwd failed" << std::endl;
+            root["error"] = ErrorCodes::PasswdUpFailed;
+            std::string jsonstr = root.toStyledString();
+            beast::ostream(connection->_response.body()) << jsonstr;
+            return ;
+        }
+        
         root["error"] = 0;
         root["email"] = email;
         root["user"]= name;
@@ -188,12 +198,12 @@ LogicSystem::LogicSystem(){
             return ;
         }
         // 提取数据 获取用户名和密码
-        auto name = src_root["user"].asString();
+        auto email = src_root["email"].asString();
         auto pwd = src_root["passwd"].asString();
         UserInfo userinfo;
         
         // 检查数据库判断用户名和邮箱是否匹配
-        bool check_pwd = MysqlMgr::GetInstance()->CheckPwd(name, pwd,userinfo);
+        bool check_pwd = MysqlMgr::GetInstance()->CheckPwd(email, pwd,userinfo);
         if(!check_pwd){
             std::cout << "user pwd not match " << std::endl;
             root["error"] = ErrorCodes::EmailNotMatch;
@@ -214,7 +224,7 @@ LogicSystem::LogicSystem(){
         }
         std::cout << "succeed to load userinfo uid is " << userinfo.uid << std::endl;
         root["error"] = 0;
-        root["user"] = name;
+        root["email"] = email;
         root["uid"] = userinfo.uid;
         root["token"] = reply.token();
         root["host"] = reply.host();

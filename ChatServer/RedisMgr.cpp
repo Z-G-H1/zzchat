@@ -322,5 +322,7 @@ bool RedisMgr::ExistsKey(const std::string &key)
 void RedisMgr::Close()
 {
     _pool->Close();
+	std::cout << "Destruct Redis" << std::endl;
+
 }
 

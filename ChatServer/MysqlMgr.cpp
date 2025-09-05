@@ -5,6 +5,7 @@ MysqlMgr::MysqlMgr(){
 }
 
 MysqlMgr::~MysqlMgr(){
+	std::cout << "Destruct mysql" << std::endl;
 
 }
 

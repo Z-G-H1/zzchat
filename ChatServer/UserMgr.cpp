@@ -3,7 +3,9 @@
 #include "RedisMgr.h"
 
 UserMgr:: ~UserMgr() {
+	std::lock_guard<std::mutex> lock(_session_mtx);
 	_uid_to_session.clear();
+	std::cout << "Destruct UserMgr" << std::endl;
 }
 
 

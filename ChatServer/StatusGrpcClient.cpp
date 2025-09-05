@@ -9,6 +9,7 @@ StatusGrpcClient::StatusGrpcClient(){
 }
 
 StatusGrpcClient::~StatusGrpcClient(){
+	std::cout << "Destruct StatusGrpcClient" << std::endl;
 
 }
 
@@ -37,6 +38,7 @@ LoginRsp StatusGrpcClient::Login(int uid, std::string token){
     LoginRsp resp;
 
     req.set_token(token);
+    req.set_uid(uid);
     auto stub = pool_->getConnection();
     Status status = stub->Login(&context, req, &resp);
     if(status.ok()){

@@ -2,6 +2,21 @@
 #include "LogicSystem.h"
 #include "CServer.h"
 
+
+#include <sstream>   // 用于 std::stringstream
+#include <iomanip>  
+std::string to_hex(const char* data, size_t length) {
+    std::stringstream ss;
+    // 设置流的格式为十六进制，并用 '0' 填充
+    ss << std::hex << std::setfill('0');
+    for (size_t i = 0; i < length; ++i) {
+        // static_cast<unsigned char> 避免 char 的符号扩展问题
+        // static_cast<unsigned int> 适配流输出
+        ss << std::setw(2) << static_cast<unsigned int>(static_cast<unsigned char>(data[i])) << " ";
+    }
+    return ss.str();
+}
+
 class LogicNode;
 
 CSession::CSession(net::io_context& ioc, CServer* server)
@@ -62,19 +77,35 @@ void CSession::Send(std::string msg, short msgid){
         return;
     }
     auto &msgNode = _send_que.front();
-    boost::asio::async_write(_socket, boost::asio::buffer(msgNode->_data,msgNode->_total_len),
+     // --- 添加日志 ---
+    std::cout << "--> [Send] Session " << _uuid << " | Queue was empty, sending new message." << std::endl;
+    std::cout << "    Length: " << msgNode->_total_len << " bytes" << std::endl;
+    std::cout << "    Hex Data: " << to_hex(msgNode->_data, msgNode->_total_len) << std::endl;
+    // --- 日志结束 ---
+    boost::asio::async_write(_socket, boost::asio::buffer(msgNode->_data, msgNode->_total_len),
         [self = shared_from_this()](const boost::system::error_code& error, size_t bytes_transferred){
             self->HandleWrite(error, bytes_transferred);
     });
 }
 
+
+
 void CSession::HandleWrite(const boost::system::error_code& error, size_t bytes_transferred){
     if(!error){
         std::lock_guard<std::mutex> lock(_send_lock);
+        // --- 添加日志 ---
+        // 打印刚刚成功发送的字节数
+        std::cout << "<-- [HandleWrite] Session " << _uuid << " | Successfully sent " << bytes_transferred << " bytes." << std::endl;
+        // --- 日志结束 ---
         _send_que.pop();
         if(!_send_que.empty()){
             // 队列不为空
             auto &msg_node = _send_que.front();
+             // --- 添加日志 ---
+            std::cout << "--> [HandleWrite] Session " << _uuid << " | Queue not empty, sending next message." << std::endl;
+            std::cout << "    Length: " << msg_node->_total_len << " bytes" << std::endl;
+            std::cout << "    Hex Data: " << to_hex(msg_node->_data, msg_node->_total_len) << std::endl;
+            // --- 日志结束 ---
             boost::asio::async_write(_socket, boost::asio::buffer(msg_node->_data,msg_node->_total_len),
                 [self = shared_from_this()](const boost::system::error_code& error, size_t bytes_transferred){
                     self->HandleWrite(error, bytes_transferred);
@@ -110,7 +141,7 @@ void CSession::AsyncReadHead(int total_len){
 
             // 获取消息id
             short msg_id;
-            memcpy(_recv_head_node->_data, &msg_id, HEAD_ID_LEN);
+            memcpy(&msg_id, _recv_head_node->_data, HEAD_ID_LEN);
             // 字节序转换， 将网络字节序转换为本地
             msg_id = boost::asio::detail::socket_ops::network_to_host_short(msg_id);
             std::cout << "msg_id is " << msg_id << std::endl;
@@ -123,7 +154,7 @@ void CSession::AsyncReadHead(int total_len){
 
             // 获取消息长度
             short msg_len;
-            memcpy(_recv_head_node->_data, &msg_len, HEAD_DATA_LEN);
+            memcpy(&msg_len, _recv_head_node->_data+HEAD_ID_LEN, HEAD_DATA_LEN);
             // 转换字节序
             msg_len = boost::asio::detail::socket_ops::network_to_host_short(msg_len);
             std::cout << "msg_len is "<< msg_len << std::endl;    
@@ -178,7 +209,7 @@ void CSession::AsyncReadBody(int total_len){
         catch (std::exception& e) {
             std::cout << "Exception code is " << e.what() << std::endl;
         }
-        });
+    });
 }
 
 void CSession::AsyncReadFull(std::size_t maxLength, std::function<void(const boost::system::error_code&, std::size_t)> handler){

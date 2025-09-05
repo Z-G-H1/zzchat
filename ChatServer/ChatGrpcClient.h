@@ -82,7 +82,9 @@ private:
 class ChatGrpcClient : public Singleton<ChatGrpcClient>{
     friend Singleton<ChatGrpcClient>;
 public:
-    ~ChatGrpcClient(){}
+    ~ChatGrpcClient(){
+	    std::cout << "Destruct ChatGrpcClient" << std::endl;
+    }
 	// rpc NotifyAddFriend(AddFriendReq) returns (AddFriendRsp) {}
     AddFriendRsp NotifyAddFriend(std::string server_ip, const AddFriendReq& req);
     AuthFriendRsp NotifyAuthFriend(std::string server_ip, const AuthFriendReq& req);

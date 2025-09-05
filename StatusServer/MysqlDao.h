@@ -13,7 +13,7 @@ public:
         : poolSize_(poolsize), url_(url), user_(user), pass_(pass), schema_(schema)
     {
         for(size_t i=0; i<poolSize_; i++){
-            sql::mysql::MySQL_Driver* driver = sql::mysql::get_driver_instance();
+            sql::mysql::MySQL_Driver* driver = sql::mysql::get_mysql_driver_instance();
             std::unique_ptr<sql::Connection> con(driver->connect(url_,user_,pass_));
             con->setSchema(schema_);
             connections_.push(std::move(con));

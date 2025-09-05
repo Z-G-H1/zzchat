@@ -38,6 +38,8 @@ LogicSystem::~LogicSystem(){
     _b_stop = true;
     _consume.notify_one();
     _worker_thread.join();
+	std::cout << "Destruct Logicsystem" << std::endl;
+
 }
 
 // 添加待处理的内容 --生产者
@@ -64,7 +66,7 @@ void LogicSystem::DealMsg(){
             while(!_msg_que.empty()){
                 auto msg_node = _msg_que.front();
                 _msg_que.pop();
-		        std::cout << "msg is is " << msg_node->_recv_node->msg_id << std::endl;
+		        std::cout << "msg id is " << msg_node->_recv_node->msg_id << std::endl;
                 auto iter = _fun_callbacks.find(msg_node->_recv_node->msg_id);
                 if(iter == _fun_callbacks.end()){
                     // 没有对应的回调函数
@@ -107,6 +109,7 @@ void LogicSystem::LoginHandler(std::shared_ptr<CSession> session, const short &m
     rtvalue["error"] = resp.error();
     if (resp.error() != ErrorCodes::Success) {
         std::string jsonstr = rtvalue.toStyledString();
+        std::cout << "Login Error " << jsonstr << std::endl;
         session->Send(jsonstr, MSG_CHAT_LOGIN_RSP);
         return;
     }
@@ -119,6 +122,8 @@ void LogicSystem::LoginHandler(std::shared_ptr<CSession> session, const short &m
     bool b_base = GetBaseInfo(base_key, uid, user_info);
     if (!b_base) {
         rtvalue["error"] = ErrorCodes::UidInvalid;
+        std::string jsonstr = rtvalue.toStyledString();
+        session->Send(jsonstr, MSG_CHAT_LOGIN_RSP);
         return;
     }
 
@@ -212,11 +217,12 @@ bool LogicSystem::GetBaseInfo(std::string base_key, int uid, std::shared_ptr<Use
     }else{
         // redis中没有， 查询mysql
         userinfo = MysqlMgr::GetInstance()->GetUser(uid);
+
         if(userinfo == nullptr)
             return false;
         
         // 把数据库中的内容读取到Redis
-        		//将数据库内容写入redis缓存
+        //将数据库内容写入redis缓存
 		Json::Value redis_root;
 		redis_root["uid"] = uid;
 		redis_root["pwd"] = userinfo->pwd;

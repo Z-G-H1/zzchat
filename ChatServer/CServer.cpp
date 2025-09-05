@@ -2,7 +2,7 @@
 #include "AsioIOServicePool.h"
 
 CServer::CServer(net::io_context &ioc, unsigned short port)
-    : _ioc(ioc), _acceptor(ioc,tcp::endpoint(tcp::v4(),port))
+    : _ioc(ioc), _port(port) ,_acceptor(ioc,tcp::endpoint(tcp::v4(),port))
 {
     std::cout << "Server start success, listen on port : " << _port << std::endl;
     StartAccept();

@@ -290,7 +290,6 @@ bool RedisMgr::ExistsKey(const std::string &key)
         _pool->returnConnection(connect);
         return false;
     }
-    std::cout << " Found [ Key " << key << " ] exists ! " << std::endl;
     freeReplyObject(reply);
     _pool->returnConnection(connect);
     return true;
